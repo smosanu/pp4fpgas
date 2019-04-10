@@ -49,7 +49,9 @@ Figure \ref{fig:spmv_arch1} provides a baseline code for sparse matrix vector mu
 The outer \lstinline{for} loop, labeled \lstinline{L1}, iterates across each row of the matrix. Multiplying this row of the matrix with the vector $x$ will produce one element of $y$.  The inner loop labeled \lstinline{L2} loop across the elements in the columns of the matrix $\mathbf{M}$. The \lstinline{L2} loop iterates \lstinline{rowPtr[i+1]} $-$ \lstinline{rowPtr[i]} times, corresponding to the number of non-zero entries in that row. For each entry, we read the value of the non-zero element of the $\mathbf{M}$ matrix from the \lstinline{values} array and multiply it by the corresponding value of the vector $x$ read from the \lstinline{x} array. That value is located at \lstinline{columnIndex[k]} since the data structure \lstinline{columnIndex} holds the column for the value \lstinline{k}. 
 
 \begin{figure}
+\begin{scriptsize}
 \lstinputlisting[format=none]{examples/spmv-top.cpp}
+\end{scriptsize}
 \caption{  A simple testbench for our \lstinline{spmv} function. The testbench generates one example and computes the matrix vector multiplication using a sparse (\lstinline{spmv}) and non-sparse function (\lstinline{matrixvector}).}
 \label{fig:spmv_test}
 \end{figure}
@@ -118,7 +120,7 @@ In this example, pipelining the inner \lstinline{L2} loop is perhaps the first a
 \begin{figure}
 \centering
 %\includegraphics[width=  .85\textwidth]{images/spmv_pipeline_inner}
-\includesvg{spmv_behavior}
+{\tiny \includesvg{spmv_behavior}}
 \caption{Architecture and behavior of the \lstinline{spmv} code with a pipelined inner loop.}
 \label{fig:spmv_pipeline_inner}
 \end{figure}
@@ -198,14 +200,14 @@ An partially unrolled version of the code is shown in Figure \ref{fig:spmv_unrol
 Note that the code in Figure \ref{fig:spmv_unrolled} is slightly different from the code that is generated from automatic loop unrolling.  Automatic loop unrolling duplicates operations, but must also preserve the order of each operation (additions in this case).  This results in a long chain of operation dependencies in the inner loop shown on the left side of Figure \ref{fig:spmv_partial_unroll}.  Reordering the operations results in operation dependencies show on the right side of the figure.  In this case, only the final accumulation results in a recurrence.   When using floating-point data types, this reordering of operations can slightly change the behavior of the program, so \VHLS does not apply this kind of operation reordering automatically.  
 
 \begin{figure}
-\lstinputlisting{examples/spmv_unrolled.cpp}
+{\footnotesize \lstinputlisting{examples/spmv_unrolled.cpp}}
 \caption{A partially unrolled version of the \lstinline|spmv| code from Figure \ref{fig:spmv_arch1}.}
 \label{fig:spmv_unrolled}
 \end{figure}
 
 \begin{figure}
 \centering
-\includesvg{spmv_partial_unroll}
+{\tiny \includesvg{spmv_partial_unroll}}
 \caption{Two different partially unrolled versions of an accumulation.  The version on the left has a recurrence with three additions, whereas the version on right only has one addition in the recurrence.}
 \label{fig:spmv_partial_unroll}
 \end{figure}
@@ -214,7 +216,7 @@ A possible implementation of this design is shown in Figure \ref{fig:spmv_unroll
 
 \begin{figure}
 \centering
-\includesvg{spmv_unrolled_behavior}
+{\tiny \includesvg{spmv_unrolled_behavior}}
 \caption{Architecture and behavior of the \lstinline{spmv} code based on the partially unrolled and pipelined inner loop shown in Figure \ref{fig:spmv_unrolled}.}
 \label{fig:spmv_unrolled_behavior}
 \end{figure}

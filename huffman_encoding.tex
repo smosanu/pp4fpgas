@@ -14,7 +14,7 @@ In basic Huffman coding, the decoder decompresses the data by traversing the Huf
 
 \begin{figure}
 \centering
-\includegraphics[width= \textwidth]{images/canonical_huffman_flow}
+\includegraphics[width=\textwidth]{images/canonical_huffman_flow}
 \caption{ The Canonical Huffman Encoding process. The symbols are filtered and sorted, and used to build a Huffman tree. Instead of passing the entire tree to the decoder (as is done in ``basic'' Huffman coding), the encoding is done such that only the length of the symbols in the tree is required by the decoder. Note that the final canonical tree is different from the initial tree created near the beginning of the process.}
 \label{fig:canonical_huffman_flow}
 \end{figure}
@@ -30,10 +30,10 @@ The \lstinline{create codeword} module creates a table of canonical Huffman code
 The creation of a canonical Huffman code includes many complex and inherently sequential computations. For example, the \lstinline{create tree} module needs to track the correct order of the created sub trees, requiring careful memory management. Additionally, there is very limited parallelism that can be exploited. In the following, we discuss the hardware architecture and the implementation of the canonical Huffman encoding design using \VHLS. 
 
 \begin{figure}
-\lstinputlisting[format=none, lastline=43]{examples/huffman_encoding.cpp}
+{\tiny \lstinputlisting[format=none, lastline=43]{examples/huffman_encoding.cpp}}
 \end{figure}
 \begin{figure}
-\lstinputlisting[format=none,firstline=44]{examples/huffman_encoding.cpp}
+{\tiny \lstinputlisting[format=none,firstline=44]{examples/huffman_encoding.cpp}}
 \caption{  The ``top'' \lstinline{huffman_encoding} function. It defines the arrays and variables  between the various subfunctions.  These are described graphically in Figures \ref{fig:canonical_huffman_flow} and \ref{fig:che_dataflow}.  }
 \label{fig:huffman_encoding.cpp}
 \end{figure}
@@ -52,7 +52,7 @@ The canonical Huffman encoding process is naturally divided into subfunctions. T
 Figure \ref{fig:che_dataflow} shows the functions and their input and output data. For the sake of simplicity, it only shows the interfaces with arrays, which, since they are large, we can assume are stored in block rams (BRAMs). Before we describe the functions and their inputs and outputs, we need to discuss the constants, custom data types, and the function interface that are defined in \lstinline{huffman.h}. Figure \ref{fig:huffman_h} shows the contents of this file. 
 
 \begin{figure}
-\lstinputlisting[lastline=40]{examples/huffman.h}
+{\tiny \lstinputlisting[lastline=40]{examples/huffman.h}}
 \caption{  The parameters, custom data type, and function interface for the top level function \lstinline{huffman_encoding}.  }
 \label{fig:huffman_h}
 \end{figure}
@@ -96,10 +96,10 @@ The first function for the Huffman encoding process is \lstinline{filter}, which
 %\end{framed}
 
 \begin{figure}
-\lstinputlisting[format=none, lastline=39]{examples/huffman_sort.cpp}
+{\tiny \lstinputlisting[format=none, lastline=39]{examples/huffman_sort.cpp}}
 \end{figure}
 \begin{figure}
-\lstinputlisting[format=none,firstline=40]{examples/huffman_sort.cpp}
+{\tiny \lstinputlisting[format=none,firstline=40]{examples/huffman_sort.cpp}}
 \caption{  The \lstinline{sort} function employs a radix sort on the input symbols based upon their frequency values. }
 \label{fig:huffman_sort.cpp}
 \end{figure}
@@ -159,7 +159,7 @@ While it may be odd to think of storing a complex data structure in a tree like 
 
 \begin{figure}
 \centering
-\includegraphics[width= \textwidth]{images/huffman_create_tree}
+\includegraphics[width=\textwidth]{images/huffman_create_tree}
 \caption{ The \lstinline{Symbol} array \lstinline{in} is used to create the Huffman tree. The tree is shown graphically along with the corresponding values for the four arrays used to represent the tree (\lstinline{intermediate}, \lstinline{left}, \lstinline{right}, and \lstinline{parent}).   }
 \label{fig:huffman_create_tree}
 \end{figure}
@@ -176,14 +176,17 @@ Conceptually this algorithm is very similar to the mergesort algorithm discussed
 %This is an interesting function from an high-level synthesis standpoint since we simplify the data structures in order to make the resulting hardware less complex.  A typical implementation would use a queue or similar data structure in order to resort the nodes. That is, it would create a new intermediate node, and then add that back into the queue. And then take two elements from the queue, and continue this process until the queue is empty. However, this involves a lot of pointer chasing and/or array reordering. Instead, we use two arrays -- one that has a sorted list of the input symbols and one that keeps a sorted list of the intermediate nodes. This requires that we check each array for the lowest sorted values. Furthermore, we store the resulting tree into three arrays \lstinline{parent}, \lstinline{left}, and \lstinline{right}. These are used to store the nodes in the binary tree. Each index from the three arrays corresponds to one node. For example, \lstinline{parent[i]}, \lstinline{left[i]}, and \lstinline{right[i]} hold all of the information for the $i$th intermediate node of the binary tree (the parent of that node, and the left and right children respectively). These are stored in the order that they are created. Correspondingly, they are also stored in sorted order (based upon the frequency of their children) since the $i + 1$ intermediate node is guaranteed to have a frequency that is equal to or larger than node $i$. The frequency value for the node is stored at \lstinline{intermediate[i]}. 
 
 \begin{figure}
-\lstinputlisting[format=none, lastline=42]{examples/huffman_create_tree.cpp}
+{\tiny
+\lstinputlisting[format=none, lastline=42]{examples/huffman_create_tree.cpp}}
 \end{figure}
 \begin{figure}
-\lstinputlisting[format=none, firstline=43, lastline=86]{examples/huffman_create_tree.cpp}
+{\tiny 
+\lstinputlisting[format=none, firstline=43, lastline=86]{examples/huffman_create_tree.cpp}}
 \end{figure}
 \begin{figure}
-\lstinputlisting[format=none, firstline=87]{examples/huffman_create_tree.cpp}
-\caption{  The complete code for Huffman tree creation. The code takes as input the sorted \lstinline{Symbol} array \lstinline{in}, the number of elements in that array \lstinline{n}, and outputs the Huffman tree in the three arrays \lstinline{left}, \lstinline{right}, and \lstinline{parent}. }
+{\tiny
+\lstinputlisting[format=none, firstline=87]{examples/huffman_create_tree.cpp}}
+\caption{The complete code for Huffman tree creation. The code takes as input the sorted \lstinline{Symbol} array \lstinline{in}, the number of elements in that array \lstinline{n}, and outputs the Huffman tree in the three arrays \lstinline{left}, \lstinline{right}, and \lstinline{parent}. }
 \label{fig:huffman_create_tree.cpp}
 \end{figure}
 
@@ -205,25 +208,30 @@ For a large dataset ($n > 256$), what is the approximate latency, in terms of $n
 \subsection{Compute Bit Length}
 
 The \lstinline{compute_bit_length} function determines the depth in the tree for each symbol.  The depth is important because it determines the number of bits used to encode each symbol. Computing the depth of each node in the tree is done using the recurrence:
+
 \begin{equation}
+\begin{footnotesize}
 \begin{array}{rrcl}
 &\mathrm{depth}(\mathrm{root}) &=& 0 \\
 \forall n != \mathrm{root}, &\mathrm{depth}(n) &=& \mathrm{depth}(\mathrm{parent}(n)+1)\\
 \forall n, &\mathrm{child\_depth}(n) &=& \mathrm{depth}(n)+1
 \end{array}
+\end{footnotesize}
 \end{equation}
 
 This recurrence can be computed by traversing the tree starting at the root node and exploring each internal node in order.  As we traverse each internal node, we can compute the depth of the node and the corresponding depth (incremented by one) of any child nodes.  It turns out that we don't actually care about the depth of the internal nodes, only about the depth of the child nodes.  As a result, the code actually computes the recurrence:
 \begin{equation}
+\begin{scriptsize}
 \begin{array}{rrcl}
 &\mathrm{child\_depth}(\mathrm{root}) &=& 1 \\
 \forall n != \mathrm{root}, &\mathrm{child\_depth}(n) &=& \mathrm{child\_depth}(\mathrm{parent}(n)+1)
 \end{array}
+\end{scriptsize}
 \end{equation}
 
 The code for this function is shown in Figure \ref{fig:huffman_compute_bit_length.cpp}.  The input arguments to the function represent a Huffman tree in \lstinline{parent[]}, \lstinline{left[]}, and \lstinline{right[]}.   \lstinline{num_symbols} contains the number of input symbols, which is one more than the number of intermediate nodes in the tree.  The output \lstinline{length_histogram[]}.  Each element of that array stores the number of symbols with the given depth. Thus, if there are five symbols with depth three, then \lstinline{length_histogram[3] = 5}. 
 \begin{figure}
-\lstinputlisting[format=none]{examples/huffman_compute_bit_length.cpp}
+{\tiny \lstinputlisting[format=none]{examples/huffman_compute_bit_length.cpp}}
 \caption{The complete code for determining the number of symbols at each bit length.}
 \label{fig:huffman_compute_bit_length.cpp}
 \end{figure}
@@ -254,10 +262,10 @@ The next part of the Huffman encoding process reorganizes nodes with a depth tha
 The input histogram is contained in \lstinline{input_length_histogram}, which was derived by the \lstinline{compute_bit_length()} function described in the previous section. There are two identical output arrays \lstinline{truncated_length_histogram1} and \lstinline{truncated_length_histogram2}. These arrays are passed to two separate functions later in the process (\lstinline{canonize_tree} and \lstinline{create_codewords}), and thus we must have two arrays to adhere to the single producer, single consumer constraint of the \lstinline{dataflow} directive.
 
 \begin{figure}
-\lstinputlisting[lastline=39]{examples/huffman_truncate_tree.cpp}
+{\tiny \lstinputlisting[lastline=39]{examples/huffman_truncate_tree.cpp}}
 \end{figure}
 \begin{figure}
-\lstinputlisting[format=none, firstline=40]{examples/huffman_truncate_tree.cpp}
+{\footnotesize \lstinputlisting[format=none, firstline=40]{examples/huffman_truncate_tree.cpp}}
 \caption{The complete code for rearranging the Huffman tree such that the depth of any node is under the target specified by the parameter \lstinline{MAX_CODEWORD_LENGTH}. }
 \label{fig:huffman_truncate_tree.cpp}
 \end{figure}
@@ -282,7 +290,7 @@ The function completes by creating an additional copy of the new bit lengths. Th
 The next step in the encoding process is to determine the number of bits for each of the symbols. We do this in the \lstinline{canonize_tree} function shown in Figure \ref{fig:huffman_canonize_tree.cpp}. The function takes as input an array of symbols in sorted order, the total number of symbols (\lstinline{num_symbols}), and a histogram of lengths describing the Huffman tree. The output \lstinline{symbol_bits[]} contains the number of encoded bits used for each symbol. Thus, if the symbol with value \lstinline{0x0A} is encoded in 4 bits, then \lstinline{symbol_bits[10] = 4}. 
 
 \begin{figure}
-\lstinputlisting[firstline=1]{examples/huffman_canonize_tree.cpp}
+{\tiny \lstinputlisting[firstline=1]{examples/huffman_canonize_tree.cpp}}
 \caption{ The complete code for canonizing the Huffman tree, which determins the number of bits for each symbol. }
 \label{fig:huffman_canonize_tree.cpp}
 \end{figure}
@@ -306,11 +314,14 @@ Implement the code in Figure \ref{fig:huffman_canonize_tree.cpp} and the alterna
 
 The final step in the encoding process is to create the codeword for each symbol.  This process simply assigns each symbol in order according to the properties of a Canonical Huffman code.  The first property is that longer length codes have a higher numeric value than the same length prefix of shorter codes.  The second property is that codes with the same length increase by one as the symbol value increases.  In order to achieve these properties while keeping the code simple, it is useful to determine the first codeword of each length.  If we know the number of codewords of each length given by $\mathrm{codeword\_length\_histogram}$, then this can be found using the following recurrence:
 \begin{equation}
+\begin{scriptsize}
 \begin{array} {rrcl}
-&\mathrm{first\_codeword}(1) &=& 0 \\
-\forall i > 1, &\mathrm{first\_codeword}(i) &=& (\mathrm{first\_codeword}(i-1) + \mathrm{codeword\_length\_histogram}(i-1)) << 1
+               &\mathrm{first\_codeword}(1) &=& 0 \\
+\forall i > 1, &\mathrm{first\_codeword}(i) &=& (\mathrm{first\_codeword}(i-1) \\
+               &                            & & +  \mathrm{codeword\_length\_histogram}(i-1)) << 1
 \label{eq:first_codeword_recurrence}
 \end{array}
+\end{scriptsize}
 \end{equation}  
 Essentially, rather than actually assigning the codewords one after another, this recurrence allocates all the codewords first.  This allows us to actually assign the codewords in order of symbol value without being concerned about also ordering them by length or frequency.
 
@@ -321,8 +332,10 @@ The code implementing the \lstinline{create_codewords} function is shown in Figu
 The code consists primarily of two loops, labeled \lstinline{first_codewords} and \lstinline{assign_codewords}.  The \lstinline{first_codewords} loop finds the first codeword with each length, implementing the recurrence in Equation \ref{eq:first_codeword_recurrence}.   The \lstinline{assign_codewords} loop finally associates each symbol with a codeword.  The codeword is found using the length of each codeword and indexing into the correct element of \lstinline{first_codeword[]}.  The main complexity of this code is in the bit reversal process, which is based on the \lstinline{bit_reverse32} function. We have talked about this function previously in the FFT chapter (see Chapter \ref{sec:fft_bit_reversal}), so we will not discuss it here again. After reversing the bits in the codeword, the next statement removes the least significant '0' bits leaving only the bit-reversed codeword. The bit-reversed codeword is then packed in the high-order bits together with the length of the symbol in the low-order bits and stored in \lstinline{encoding[]}.  Lastly, the value in \lstinline{first_codeword[]} is incremented.
 
 \begin{figure}
+\begin{tiny}
 \lstinputlisting[firstline=1]{examples/huffman_create_codeword.cpp}
 \caption{ The complete code for generating the canonical Huffman codewords for each of the symbols. The codewords can be computed with knowledge of number of bits that each symbol uses (stored in the input array \lstinline{symbol_bits[]}). Additionally, we have another input array \lstinline{codeword_length_histogram[]} which stores at each entry the number of symbols with codewords at that bit length. The output is the code word for each symbol stored in the \lstinline{encoding[]} array. }
+\end{tiny}
 \label{fig:huffman_create_codeword.cpp}
 \end{figure}
 
@@ -331,7 +344,8 @@ In the code in Figure \ref{fig:huffman_create_codeword.cpp}, the inputs actually
 \end{exercise}
 
 \begin{exercise}
-Estimate the latency of the code in Figure \ref{fig:huffman_create_codeword.cpp}
+Estimate the latency of the code in Figure
+\ref{fig:huffman_create_codeword.cpp}
 \end{exercise}
 
 Let us now go through our running example and show how this is used to derive the initial codewords. In the example, the symbols \sym{A}, \sym{D}, and \sym{E} have two bits for their encoding; symbol \sym{C} has three bits; and symbols \sym{B} and \sym{F} have four bits. Thus, we have:
@@ -377,10 +391,14 @@ The final codewords for all of the symbols are:
 The final part of the code is the testbench. This is shown in Figure \ref{fig:huffman_encoding_test.cpp}. The general structure is to read the input frequency values from a file, process them using the \lstinline{huffman_encoding} function, and compare the resulting codewords with an existing golden reference that is stored in a file. 
 
 \begin{figure}
+\begin{tiny}
 \lstinputlisting[format=none, firstline=1,lastline=42]{examples/huffman_encoding_test.cpp}
+\end{tiny}
 \end{figure}
 \begin{figure}
+\begin{tiny}
 \lstinputlisting[format=none, firstline=43]{examples/huffman_encoding_test.cpp}
+\end{tiny}
 \caption{ The complete code for the canonical Huffman encoding testbench. The code initializes the \lstinline{in} array with data from an input file. It passes that into the top \lstinline{huffman_encoding} function. Then it stores the resulting codewords into a file, and compares that with another golden reference file. It prints out the results of the comparison, and returns the appropriate value.}
 \label{fig:huffman_encoding_test.cpp}
 \end{figure}

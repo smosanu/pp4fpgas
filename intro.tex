@@ -88,7 +88,7 @@ Figure \ref{fig:slice_channel} provides an example of how a \gls{slice}, \gls{ro
 
 \begin{figure}
 \centering
-\includegraphics[width= 0.8\textwidth]{images/slice_channel}
+\includegraphics[width=\textwidth]{images/slice_channel}
 \caption{ A \gls{slice} contains a small number of \glspl{lut} and \gls{ff}. We show a very simple \gls{slice} with one \gls{lut} and one \gls{ff} though generally these have two or more of each. Slices are connected to one another using a \gls{routingchannel} and \gls{switchbox}. These two provide a programmable interconnect that provide the data movement between the programmable logic elements (\glspl{slice}). The \gls{switchbox} has many switches (typically implemented as pass transistors) that allow for arbitrary wiring configurations between the different routing tracks in the routing tracks adjacent to the switchbox. }
 \label{fig:slice_channel}
 \end{figure}
@@ -97,7 +97,7 @@ The \glspl{switchbox} provides a connection matrix between routing tracks in adj
 
 \begin{figure}
 \centering
-\includegraphics[width= 0.7\textwidth]{images/fpga}
+\includegraphics[width=\textwidth]{images/fpga}
 \caption{ The two-dimensional structure of an \gls{fpga} showing an island style architecture. The logic and memory resources in the \glspl{slice} are interconnected using \glspl{routingchannel} and \glspl{switchbox}. The input/output (I/O) blocks provide an external interface, e.g., to a memory, microprocessor, sensor, and/or actuator. On some FPGAs, the I/O directly connects to the chip pins. Other FPGAs use the I/O to connect the programmable logic fabric to on-chip resources (e.g., a microprocessor bus or cache).   }
 \label{fig:fpga}
 \end{figure}
@@ -130,7 +130,7 @@ Figure \ref{fig:FPGAmemories} provides a comparison between different on-chip an
 
 \begin{figure}
 \centering
- 
+\begin{footnotesize}
 \begin{tabular}{|r|c|c|c|}
 \hline
  & External &  & \\
@@ -138,11 +138,12 @@ Figure \ref{fig:FPGAmemories} provides a comparison between different on-chip an
 \hline
 count & 1-4 & thousands & millions \\
 size & GBytes & KBytes & Bits \\
-total size & GBytes & MBytes & 100s of KBytes \\
+t. size & GBytes & MBytes & 100s of KBytes \\
 width & 8-64 & 1-16 & 1 \\
-total bandwidth & GBytes/sec & TBytes/sec & 100s of TBytes/sec \\
+t. bandwidth & GBytes/s & TBytes/s & 100s of TBytes/s \\
 \hline
 \end{tabular}
+\end{footnotesize}
 \caption{A comparison of three different on- and off-chip memory storage options. External memory provides the most density but has limited total bandwidth. Moving on-chip there are two options: \glspl{ff} and \glspl{bram}. \glspl{ff} have the best total bandwidth but only a limited amount of total data storage capability. \glspl{bram} provide an intermediate value between external memory and \glspl{ff}.}
 \label{fig:FPGAmemories}
 \end{figure}
@@ -155,9 +156,11 @@ Given the complexity and size of modern FPGA devices, designers have looked to i
 
 \begin{figure}
 \centering
+\begin{tiny}
 \def\svgwidth{\columnwidth}
 \includesvg{embedded_design_template}
 %\includegraphics{intervalduration.pdf}
+\end{tiny}
 \caption{A block diagram showing a hypothetical embedded FPGA design, consisting of I/O interface cores (shown in blue), standard cores (shown in green), and application specific accelerator cores (shown in purple).  Note that accelerator cores might have streaming interfaces (Accelerator 2), memory-mapped interfaces (Accelerator 3), or both (Accelerator 1). }
 \label{fig:designTemplate}
 \end{figure}
@@ -184,9 +187,11 @@ We use the term \gls{task} to mean a fundamental atomic unit of behavior; this c
 
 \begin{figure}
 \centering
+\begin{footnotesize}
 \def\svgwidth{\columnwidth}
 \includesvg{intervalduration}
 %\includegraphics{intervalduration.pdf}
+\end{footnotesize}
 \caption{The task interval and task latency for two different designs. The left design is pipelined while the right one uses a more sequential implementation.}
 \label{fig:intervalDuration}
 \end{figure}
@@ -215,10 +220,12 @@ A key question to understand is: ``What circuit is generated from this code?''. 
 
 \begin{figure}
 {
+\begin{scriptsize}
 \lstinputlisting[format=none]{examples/fir.c}
 %\begin{tikzpicture}[remember picture,overlay,>=stealth']
 %\draw[<-,ultra thick] (pic cs:line-examples/fir.c-2-end) +(1em,.7ex) -| +(4,1em) node[above,comment,thin] {Comment};
 %\end{tikzpicture}
+\end{scriptsize}
 }
 \caption{Code for a four tap FIR filter.
 }\label{fig:FIR}
@@ -226,10 +233,14 @@ A key question to understand is: ``What circuit is generated from this code?''. 
 
 \begin{figure}
 {
-\hbox{\lstinputlisting{examples/fir.S}}\hbox{\includesvg{filter_asm_behavior}}
+\begin{tiny}
+\hbox{\lstinputlisting{examples/fir.S}}
+
+\hbox{\includesvg{filter_asm_behavior}}
 %\begin{tikzpicture}[remember picture,overlay,>=stealth']
 %\draw[<-,ultra thick] (pic cs:line-examples/fir.c-2-end) +(1em,.7ex) -| +(4,1em) node[above,comment,thin] {Comment};
 %\end{tikzpicture}
+\end{tiny}
 }
 \caption{RISC-style assembly generated from the C code in Figure \ref{fig:FIR}, targetting the Xilinx Microblaze processor.  This code is generated using \texttt{microblazeel-xilinx-linux-gnu-gcc -O1 -mno-xl-soft-mul -S fir.c}}\label{fig:FIR_microblaze}
 \end{figure}
@@ -240,14 +251,18 @@ By default, the \VHLS tool will generate an optimized, but largely sequential ar
 
 \begin{figure}
 \centering
-\mbox{\includesvg{filter_one_sample}}\mbox{\includesvg{filter_one_sample_behavior}}
+\mbox{\includesvg{filter_one_sample}}
+
+\mbox{\includesvg{filter_one_sample_behavior}}
 \caption{A ``one tap per clock'' architecture for an FIR filter.  This architecture can be implemented from the code in Figure \ref{fig:FIR}.}
 \label{fig:FIR_sequential}
 \end{figure}
 
 \begin{figure}
 \centering
-\mbox{\includesvg{filter_one_tap}}\mbox{\includesvg{filter_one_tap_behavior}}
+\mbox{\includesvg{filter_one_tap}}
+
+\mbox{\includesvg{filter_one_tap_behavior}}
 %\includegraphics{filter_one_tap.pdf}
 \caption{A ``one sample per clock'' architecture for an FIR filter.  This architecture can be implemented from the code in Figure \ref{fig:FIR} using function pipeline.}\label{fig:FIR_function_pipeline}
 \end{figure}
@@ -301,7 +316,9 @@ Another key question you should ask yourself is, ``Is this code the best way to 
 For instance, while a tool might be able to generate either architecture in Figure \ref{fig:FIR_function_pipeline} or \ref{fig:FIR_sequential} from the code in Figure \ref{fig:FIR}, additing additional directives as shown in Figure \ref{fig:block_FIR} would result in a specific architecture. In this case the delay line is explicitly unrolled, and the multiply-accumulate \lstinline|for| loop is stated to be implemented in a pipelined manner. This would direct the HLS tool to produce an architecture that looks more like the pipelined one in Figure \ref{fig:FIR_function_pipeline}.
 
 \begin{figure}
+\begin{scriptsize}
 \lstinputlisting{examples/block_fir.c}
+\end{scriptsize}
 \caption{Alternative code implementing an FIR filter.}\label{fig:block_FIR}
 \end{figure}
 
@@ -354,6 +371,7 @@ The book is made to be read sequentially. For example, Chapter \ref{chapter:fir}
 
 
 \begin{table}[htp]
+\begin{tiny}
 \caption{A map describing the types of HLS optimizations and the chapters that discuss the concepts beyond them.}
 \begin{center}
 \begin{tabular}{c||c|c|c|c|c|c|c|c|c|c|}
@@ -374,6 +392,7 @@ Interfacing &  & & & &  & & & X & &  \\
 
 \end{tabular}
 \end{center}
+\end{tiny}
 \label{table:optimizations}
 \end{table}%
 

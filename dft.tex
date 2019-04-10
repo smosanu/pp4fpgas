@@ -98,7 +98,7 @@ The relationship between sine and the complex exponential is similar as shown in
 
 \begin{figure}
 \centering
-\includegraphics[width= \textwidth]{images/sin_cos_exp}
+\includegraphics[width=\textwidth]{images/sin_cos_exp}
 \caption{A visualization of the relationship between the cosine, sine, and the complex exponential. Part a) shows the sum of two complex vectors, $e^{jx}$ and $e^{-jx}$. The result of this summation lands exactly on the real axis with the value $2 \cos (x)$. Part b) shows a similar summation except this time summing the vectors $e^{jx}$ and $-e^{-jx}$. This summation lands on the imaginary axis with the value $2 \sin (x)$.}
 \label{fig:sin_cos_exp}
 \end{figure}
@@ -148,7 +148,7 @@ Figure \ref{fig:dft_visualization} provides a visualization of the \gls{dft} coe
 
 \begin{figure}
 \centering
-\includegraphics[width= 0.8 \textwidth]{images/dft-visualization}
+\includegraphics[width=\textwidth]{images/dft-visualization}
 \caption{ The elements of the $S$ shown as a complex vectors.  }
 \label{fig:dft_visualization}
 \end{figure}
@@ -164,7 +164,9 @@ Matrix-vector multiplication is the core computation of a \gls{dft}.  The input 
 In this section, we look at the hardware implementation of matrix-vector multiplication. We break this operation down into its most basic form (see Figure \ref{fig:matrix_vector_base}). This allows us to better focus the discussion on the optimizations rather than deal with all the complexities of using functionally correct \gls{dft} code. We will build a \gls{dft} core in the next section. 
 
 \begin{figure}
+\begin{footnotesize}
 \lstinputlisting{examples/matrix_vector_base.c}
+\end{footnotesize}
 \caption{Simple code implementing a matrix-vector multiplication.}\label{fig:matrix_vector_base}
 \end{figure}
 
@@ -179,7 +181,7 @@ Another major factor is the amount of parallelism that is available within the c
 \begin{figure}
 \centering
 %\includesvg{images/matrix_vector_sequential}
-\includegraphics[width= 0.4 \textwidth]{images/matrix_vector_sequential}
+\includegraphics[width=\textwidth]{images/matrix_vector_sequential}
 \includesvg{dft_behavior_loop_sequential}
 \caption{A possible implementation of matrix-vector multiplication from the code in Figure \ref{fig:matrix_vector_base}.}
 \label{fig:matrix_vector_sequential}
@@ -192,7 +194,9 @@ Figure \ref{fig:matrix_vector_sequential} shows a sequential architecture for ma
 There is substantial opportunity to exploit parallelism in the matrix-multiplication example. We start by focusing on the inner loop. The expression \lstinline|sum += V_In[j] * M[i][j];| is executed in each iteration of the loop. The variable \lstinline|sum|, which is keeping a running tally of the multiplications, is being reused in each iteration and takes on a new value. This inner loop can be rewritten as shown Figure \ref{fig:matrix_vector_base_unroll_inner}.  In this case, the sum variable has been completely eliminated and replaced with multiple intermediate values in the larger expression.
 
 \begin{figure}
+\begin{footnotesize}
 \lstinputlisting{examples/matrix_vector_base_unroll_inner.c}
+\end{footnotesize}
 \caption{The matrix-vector multiplication example with a manually unrolled inner loop.}
 \label{fig:matrix_vector_base_unroll_inner}
 \end{figure}
@@ -206,16 +210,20 @@ It should be clear that the new expression replacing the inner loop has signific
 
 \begin{figure}
 \centering
+\begin{tiny}
 \includesvg{matrix_vector_unroll_inner}
-%\includegraphics[width=.8\textwidth]{images/matrix_vector_unroll_inner.pdf}
+\end{tiny}
+%\includegraphics[width=\textwidth]{images/matrix_vector_unroll_inner.pdf}
 \caption{A data flow graph of the expression resulting from the unrolled inner loop from Figure \ref{fig:matrix_vector_base_unroll_inner}.}\label{fig:matrix_vector_unroll_inner_dfg}
 \end{figure}
 
 If we wish to achieve the minimum task latency for the expression resulting from the unrolled inner loop, all eight of the multiplications should be executed in parallel. Assuming that the multiplication has a latency of 3 cycles and addition has a latency of 1 cycle, then all of the \lstinline|V_In[j] * M[i][j]| operations are completed by the third time step. The summation of these eight intermediate results using an adder tree takes $\log 8 = 3$ cycles. Hence, the body of \lstinline|data_loop| now has a latency of 6 cycles for each iteration and requires 8 multipliers and 7 adders.  This behavior is shown in the left side of  Figure \ref{fig:dft_behavior1}.  Note that the adders could be reused across Cycle 4-6, which would reduce the number of adders to 4. However, adders are typically not shared when targeting FPGAs since an adder and a multiplexer require the same amount of FPGA resources (approximately 1 LUT per bit for a 2-input operator). 
 
 \begin{figure}
+\begin{tiny}
 \centering
 \includesvg{dft_behavior1}
+\end{tiny}
 %\includesvg{dft_behavior2}
 \caption{Possible sequential implementations resulting from the unrolled inner loop from Figure \ref{fig:matrix_vector_base_unroll_inner}.}\label{fig:dft_behavior1}
 \end{figure}
@@ -225,8 +233,10 @@ If we are not willing to use 8 multipliers, there is an opportunity to reduce re
 Looking at Figure \ref{fig:dft_behavior1}, it is apparent that there are significant periods where the operators are not performing useful work, reducing the overall efficiency of the design.  It would be nice if we could reduce these periods.  In this case we can observe that each iteration of \lstinline|data_loop| is, in fact completely independent, which means that they can be executed concurrently.  Just as we unrolled \lstinline{dot_product_loop}, it's also possible to unroll \lstinline{data_loop} and perform all of the multiplications concurrently.  However, this would require a very large amount of FPGA resources.  A better choice is to enable each iteration of the loop to start as soon as possible, while the previous execution of the loop is still executing.  This process is called \gls{looppipelining} and is achieved in \VHLS using \lstinline|#pragma HLS pipeline|.  In most cases, loop pipelining reduces the interval of a loop to be reduced, but does not affect the latency.  Loop pipelined behavior of this design is shown in Figure \ref{fig:dft_behavior2}. 
 
 \begin{figure}
+\begin{tiny}
 \centering
 \includesvg{dft_behavior2}
+\end{tiny}
 \caption{Possible pipelined implementations resulting from the unrolled inner loop from Figure \ref{fig:matrix_vector_base_unroll_inner}.}\label{fig:dft_behavior2}
 \end{figure}
 
@@ -236,7 +246,9 @@ By taking advantage of pipelined multipliers, we can reduce the latency of the u
 
 \begin{figure}
 \centering
+\begin{tiny}
 \includesvg{dft_behavior3}
+\end{tiny}
 \caption{Possible implementations resulting from the unrolled inner loop from Figure \ref{fig:matrix_vector_base_unroll_inner} using pipelined multipliers.}\label{fig:dft_behavior_pipelined}
 \end{figure}
 
@@ -285,13 +297,17 @@ If throughput is the number one concern, all of the data would be stored in FFs.
 Returning to the matrix-vector multiplication code in Figure \ref{fig:matrix_vector_base}, we can achieve a highly parallel implementation with the addition of only a few directives, as shown in Figure \ref{fig:matrix_vector_optimized}.  The resulting architecture is shown in Figure \ref{fig:matrix_vector_optimized_behavior}.  Notice that the inner \lstinline|j| loop is automatically unrolled by \VHLS and hence every use of \lstinline|j| is replaced with constants in the implementation.   This design demonstrates the most common use of array partitioning where the array dimensions that are partitioned (in this case, \lstinline|V_In[]| and the second dimension of \lstinline|M[][]|) are indexed with the constants (in this case the loop index \lstinline|j| of the unrolled loop).  This enables an architecture where multiplexers are not required to access the partitioned arrays.
 
 \begin{figure}
+\begin{footnotesize}
 \lstinputlisting{examples/matrix_vector_optimized.c}
+\end{footnotesize}
 \caption{Matrix-vector multiplication with a particular choice of array partitioning and pipelining. }
 \label{fig:matrix_vector_optimized}
 \end{figure}
 
 \begin{figure}
+\begin{tiny}
 \includesvg{matrix_vector_optimized}
+\end{tiny}
 \caption{Matrix-vector multiplication architecture with a particular choice of array partitioning and pipelining.  The pipelining registers have been elided and the behavior is shown at right.}
 \label{fig:matrix_vector_optimized_behavior}
 \end{figure}
@@ -323,7 +339,9 @@ Similarly, the directive \lstinline{array_partition variable=x factor=2 block} w
 \end{aside}
 
 \begin{figure}
+\begin{tiny}
 \includesvg{matrix_vector_partition_factor}
+\end{tiny}
 \caption{Matrix-vector multiplication architectures at II=3 with a particular choices of array partitioning.  On the left, the arrays have been partitioned more than necessary, resulting in multiplexers.  On the right, the arrays are partitioned with factor=3. In this case, multiplexing has been reduced, but the \lstinline|j| loop index becomes a part of the address computations.}
 \label{fig:matrix_vector_partition_factor}
 \end{figure}
@@ -339,7 +357,9 @@ The HLS tool can automatically unroll loops using the \texttt{unroll} directive.
 \end{aside}
 
 \begin{figure}
+\begin{footnotesize}
 \lstinputlisting{examples/matrix_vector_unroll_inner2.c}
+\end{footnotesize}
 \caption{The inner loop of matrix-vector multiply manually unrolled by a factor of two. }
 \label{fig:matrix_vector_unroll_inner2}
 \end{figure}
@@ -365,7 +385,9 @@ One significant change that is required is that we must be able to handle comple
 As is typical when creating a hardware implementation using high level synthesis, we start with a straightforward or naive implementation. This provides us with a baseline code that we can insure has the correct functionality. Typically, this code runs in a very sequential manner; it is not highly optimized and therefore may not meet the desired performance metrics. However, it is a necessary step to insure that the designer understand the functionality of the algorithm, and it serves as starting point for future optimizations.
 
 \begin{figure}
+\begin{tiny}
 \lstinputlisting{examples/dft.c}
+\end{tiny}
 \caption{Baseline code for the \gls{dft}.}
 \label{fig:dft_code}
 \end{figure}
@@ -378,8 +400,14 @@ This code uses a function call to calculate \lstinline|cos()| and \lstinline|sin
 
 \begin{figure}
 \centering
+\begin{tiny}
 \includesvg{dft_behavior_baseline}
-\includegraphics[width= 0.7 \textwidth]{images/dft_sequential_arch}
+\end{tiny}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=0.8\textwidth]{images/dft_sequential_arch}
 \caption{ A high level architectural diagram of the \gls{dft} as specified in the code from Figure \ref{fig:dft_code}. This is not a comprehensive view of the architecture, e.g., it is missing components related to updating the loop counters \lstinline|i| and \lstinline|j|. It is meant to provide an approximate notion of how this architecture will be synthesized.  Here we've assumed that floating point operators take 4 clock cycles.}
 \label{fig:dft_sequential_arch}
 \end{figure}
@@ -401,7 +429,9 @@ The baseline \gls{dft} implementation of the previous section uses relatively hi
 
 \begin{figure}
 \centering
+\begin{tiny}
 \includesvg{dft_recurrence_behavior}
+\end{tiny}
 \caption{Pipelined version of the behavior in Figure \ref{fig:dft_sequential_arch}.  In this case, the initiation interval of the loop is limited to 4, since each floating point addition takes 4 clock cycles to complete and the result is required before the next loop iteration begins (the dependence shown in red).  The dependencies  for all iterations are summarized in the diagram on the right.}
 \label{fig:dft_recurrence_behavior}
 \end{figure}
