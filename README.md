@@ -12,4 +12,6 @@ I wanted to read this book on my Kindle device, so I imported this project in Ov
 - \documentclass[12pt]{book}
 - \geometry{a5paper, margin=0.5in}
 
+To further increase the text, I switched to a6paper and adjusted a bunch of figures to fit.
+
 Re-compiled and worked like a charm! Thank you very much to the authors!
