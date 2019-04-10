@@ -10,7 +10,9 @@ This chapter looks at a bit more complex design -- matrix multiplication. We con
 
 Matrix multiplication is a binary operation that combines two matrices into a third. The operation itself can be described as a linear operation on the vectors that compose the two matrices. The most common form of matrix multiplication is call the \term{matrix product}. The matrix product $\mathbf{AB}$ creates an $n \times p$ matrix when matrix $\mathbf{A}$ has dimensions $n \times m$ and matrix $\mathbf{B}$ has dimensions $m \times p$. 
 
-More precisely, we define the following: \begin{equation}
+More precisely, we define the following:
+\begin{equation}
+\scriptsize
 \mathbf{A} =
  \begin{bmatrix}
   A_{11} & A_{12}  & \cdots & A_{1m} \\
@@ -28,6 +30,7 @@ More precisely, we define the following: \begin{equation}
 \end{equation} 
 
 \begin{equation}
+\scriptsize
 \mathbf{AB} = \begin{bmatrix}
  \left(\mathbf{AB}\right)_{11} & \left(\mathbf{AB}\right)_{12} & \cdots & \left(\mathbf{AB}\right)_{1p} \\
  \left(\mathbf{AB}\right)_{21} & \left(\mathbf{AB}\right)_{22} & \cdots & \left(\mathbf{AB}\right)_{2p} \\
@@ -38,6 +41,7 @@ More precisely, we define the following: \begin{equation}
 
 Now we provide a simple example. Let
 \begin{equation}
+\scriptsize
 \mathbf{A} =
  \begin{bmatrix}
  \label{eq:ABmatrix}
@@ -52,7 +56,9 @@ Now we provide a simple example. Let
  \end{bmatrix}
 \end{equation}
 The result of the matrix product is
-\begin{equation}\label{eq:ABmatrix_product}\mathbf{AB} = \begin{bmatrix}
+\begin{equation}
+\scriptsize
+\label{eq:ABmatrix_product}\mathbf{AB} = \begin{bmatrix}
  A_{11}B_{11} + A_{12}B_{21} + A_{13}B_{31} & A_{11}B_{12} + A_{12}B_{22} + A_{13}B_{32} \\
  A_{21}B_{11} + A_{22}B_{21} + A_{23}B_{31} & A_{21}B_{12} + A_{22}B_{22} + A_{23}B_{32}\\
 \end{bmatrix}
@@ -61,7 +67,7 @@ The result of the matrix product is
 Matrix multiplication is a fundamental operation in numerical algorithms. Computing the product between large matrices can take a significant amount of time. Therefore, it is critically important part of many of problems in numerical computing. Fundamentally, matrices represent linear transforms between vector spaces; matrix multiplication provides way to compose the linear transforms.  Applications include linearly changing coordinates (e.g., translation, rotation in graphics), high dimensional problems in statistical physics (e.g., transfer-matrix method), and graph operations (e.g., determining if a path exists from one vertex to another). Thus it is a well studied problem, and there are many algorithms that aim to increase its performance, and reduce the memory usage.
 
 \begin{figure}
-\lstinputlisting[firstline=5]{examples/matrixmultiplication.cpp}
+{\footnotesize \lstinputlisting[firstline=5]{examples/matrixmultiplication.cpp}}
 \caption{A common three \lstinline{for} loop structure for matrix multiplication. The outer \lstinline{for} loops, labeled \lstinline{rows} and \lstinline{cols}, iterate across the rows and columns of the output matrix $\mathbf{AB}$.  The innermost loop, labeled \lstinline{product} multiplies the appropriate elements of one row of $\mathbf{A}$ and one column of $\mathbf{B}$ and accumulates them until it has the result for the element in $\mathbf{AB}$ .  }
 \label{fig:matrixmultiplication_sw}
 \end{figure}
@@ -80,7 +86,7 @@ Executing large numbers of operations every cycle requires being able to supply 
 
 \begin{figure}
 \centering
-\includesvg{matmul_array_reshape}
+{\tiny \includesvg{matmul_array_reshape}}
 \caption{Three different implementations of a two-dimensional array.  On the left is the original array consisting of $N*M$ elements.  In the middle, the array has been transformed using the \lstinline{array_partition} directive, resulting in $M$ memories, each with $N$ elements.  On the right, the array has been transformed using the \lstinline{array_reshape} directive, resulting in one memory with $N$ locations and each location contains $M$ elements of the original array.}
 \label{fig:matmul_array_reshape}
 \end{figure}
@@ -129,7 +135,7 @@ In the following, we develop a streaming architecture for matrix multiplication.
 
 \begin{figure}
 \centering
-\includegraphics[width=  .85\textwidth]{images/blockmm}
+\includegraphics[width=0.9\textwidth]{images/blockmm}
 \caption{ One possible blocked decomposition of the matrix multiplication of two $4 \times 4$ matrices. The entire $\mathbf{AB}$ product is decomposed into four matrix multiply operations operating on a $2 \times 4$ block of $\mathbf{A}$ and a $4 \times 2$ block of $\mathbf{B}$.}
 \label{fig:blockmm}
 \end{figure}
@@ -147,7 +153,7 @@ Figure \ref{fig:blockmm} c) sends different data for both the $\mathbf{A}$ and $
 The final execution of the streaming block matrix multiply, shown in Figure \ref{fig:blockmm} d), uses the same last two rows of the $\mathbf{A}$ matrix from the previous iteration. And it sends the last two columns of the $\mathbf{B}$ matrix. The result provides the elements in the ``lower right'' corner of the $\mathbf{AB}$ matrix. 
 
 \begin{figure}
-\lstinputlisting{examples/block_mm.h}
+{\footnotesize \lstinputlisting{examples/block_mm.h}}
 \caption{  The header file for the block matrix multiplication architecture. The file defines the data types used within the function, the key constants, and the \lstinline{blockmatmul} function interface.   }
 \label{fig:block_mm_h}
 \end{figure}
@@ -179,7 +185,7 @@ The \lstinline{hls::stream} class must always be passed by reference between fun
 \end{aside}
 
 \begin{figure}
-\lstinputlisting[format=none]{examples/block_mm.cpp}
+{\scriptsize \lstinputlisting[format=none]{examples/block_mm.cpp}}
 \caption{  The \lstinline{blockmatmul} function takes a \lstinline{BLOCK_SIZE} set of rows from $\mathbf{A}$ matrix, a \lstinline{BLOCK_SIZE} set of columns from the $\mathbf{B}$ matrix, and creates a \lstinline{BLOCK_SIZE} $\times$ \lstinline{BLOCK_SIZE} partial result for the $\mathbf{AB}$ matrix. The first part of the code (denoted by the label \lstinline{loadA}) stores the rows from $\mathbf{A}$ into a local memory, the second part in the nested \lstinline{partialsum for} performs the computation for the partial results, and the final part (with the \lstinline{writeoutput} label) takes these results and puts them the proper form to return from the function.}
 \label{fig:block_mm}
 \end{figure}
@@ -211,12 +217,13 @@ How does changing the \lstinline{BLOCK_SIZE} effect the performance and resource
 \end{exercise}
 
 The \lstinline{dataflow} directive at the start of the function creates a pipeline across the portions of the function, i.e., the \lstinline{loadA for} loop, the \lstinline{partialsum} nested \lstinline{for} loop, and the \lstinline{writeoutput for} loop. Using this directive will decrease the interval of the \lstinline{blockmatmul} function. However, this is limited by the largest interval of all three of the portions of the code. That is, the maximum interval for the \lstinline{blockmatmul} function -- let us call it interval(\lstinline{blockmatmul}) -- is greater than or equal to the the interval of the three parts which are defined as interval(\lstinline{loadA}), interval(\lstinline{partialsum}), and interval(\lstinline{writeoutput}). More formally, 
-
+\begin{scriptsize}
 \begin{align}
 \label{eq:interval}
 interval(\texttt{blockmatmul}) \ge \max(&interval(\texttt{loadA}), interval(\texttt{partialsum}), \nonumber \\
  & interval(\texttt{writeoutput}))
  \end{align}
+ \end{scriptsize}
 
 We need to keep Equation \ref{eq:interval} in mind as we optimize the \lstinline{blockmatmul} function. For example, assume that interval(\lstinline{partialsum}) is much larger than the other two portions of the function. Any performance optimizations that minimize interval(\lstinline{loadA}) and interval(\lstinline{writeoutput}) are useless since the function interval, i.e., interval(\lstinline{blockmatmul}) would not decrease. Thus, the designer should focus any performance optimization effort to decrease interval(\lstinline{partialsum}), i.e., target performance optimizations on those three nested \lstinline{for} loops. 
 
@@ -241,7 +248,7 @@ You can name the streams using an initializer. This is good practice as it gives
 The next set of nested \lstinline{initmatrices for} loops sets the values of the four two-dimensional arrays \lstinline{A}, \lstinline{B}, \lstinline{matrix_swout}, and \lstinline{matrix_hwout}. The variables \lstinline{A} and \lstinline{B} are input matrices. These are initialized to a random value between [0, 512). We picked the number 512 for no particular reason other than it can fit any 9 bit value. Keep in mind that while the \lstinline{DTYPE} is set as an \lstinline{int}, and thus has significantly more range than [0,512), we often move to fixed point values with much smaller ranges later in the design optimization process. The \lstinline{matrix_swout} and \lstinline{matrix_hwout} are both initialized to $0$. These are filled in later by calls to the functions \lstinline{matmatmul_sw} and \lstinline{blockmatmul}.
 
 \begin{figure}
-\lstinputlisting{examples/blockmatmul_test_init.cpp}
+{\tiny \lstinputlisting{examples/blockmatmul_test_init.cpp}}
 \caption{  The first part of the testbench for block matrix multiplication. The function is split across two figures since it is too long to display on one page. The rest of the testbench is in Figure \ref{fig:block_mm_final}. This has a ``software'' version of matrix multiplication, and variable declarations and initializations. }
 \label{fig:block_mm_init}
 \end{figure}
@@ -249,7 +256,7 @@ The next set of nested \lstinline{initmatrices for} loops sets the values of the
 The second part of the testbench is continued in Figure \ref{fig:block_mm_final}. This has the last portion of the code from the \lstinline{main} function. 
 
 \begin{figure}
-\lstinputlisting[format=none]{examples/blockmatmul_test.cpp}
+{\tiny \lstinputlisting[format=none]{examples/blockmatmul_test.cpp}}
 \caption{  The second portion of the block matrix multiply testbench. The first part is shown in Figure \ref{fig:block_mm_init}. This shows the computation required to stream the data to the \lstinline{blockmatmul} function, and the code that tests that this function matches a simpler three \lstinline{for} loop implementation. }
 \label{fig:block_mm_final}
 \end{figure}

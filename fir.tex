@@ -49,7 +49,9 @@ Note that in general, filter coefficients can be crafted to create many differen
 Consider the code for an 11 tap FIR filter in Figure \ref{fig:fir11_initial}. The function takes two arguments, an input sample \lstinline{x}, and the output sample \lstinline{y}. This function must be called multiple times to compute an entire output signal, since each time that we execute the function we provide one input sample and receive one output sample. This code is convenient for modeling a streaming architecture, since we can call it as many times as needed as more data becomes available.
 
 \begin{figure}
+\begin{scriptsize}
 \lstinputlisting{examples/fir11_initial.c}
+\end{scriptsize}
 \caption{A functionally correct, but highly unoptimized, implementation of an 11 tap FIR filter. }
 \label{fig:fir11_initial}
 \end{figure}
@@ -108,7 +110,9 @@ Calculating performance becomes even more complicated as we perform pipelining a
 
 \begin{figure}
 \centering
-\includegraphics[width=5.5in]{images/mac}
+\begin{tiny}
+\includegraphics[width=\textwidth]{images/mac}
+\end{tiny}
 \caption{The performance of multiply accumulate operation changes depending upon the target clock period. Assume the \lstinline{multiply} operation takes 3 ns and \lstinline{add} operation takes 2 ns. Part a) has a clock period of 1 ns, and one MAC operation takes 5 cycles. Thus the performance is 200 million MACs/sec. Part b) has a clock period of 2 ns, and the MAC takes 3 cycles resulting in approximately 167 million MACs/sec.  Part c) has a clock period of 5 ns. By using operation chaining, a MAC operation takes 1 cycle for a clock period of 200 million MACs/sec. }
 \label{fig:mac}
 \end{figure}
@@ -210,7 +214,9 @@ Each iteration of this loop performs one multiply and one add operation. Each it
 The load and multiplication operations are independent across all of the iterations of the for loop. The addition operation, depending on how it is implemented, may depend upon the values of the previous iterations. However, it is possible to unroll this loop and remove this dependency.
 
 \begin{figure}
+\begin{scriptsize}
 \lstinputlisting{examples/fir11_unrollMAC.c}
+\end{scriptsize}
 \caption{ Manually unrolling the \lstinline{MAC} loop in the \lstinline{fir11} function by a factor of four.  }
 \label{fig:fir11_unrollMAC}
 \end{figure}
@@ -254,7 +260,7 @@ A schedule corresponding to one iteration of the \lstinline{MAC for} loop is sho
 
 \begin{figure}
 \centering
-\includegraphics[width=6in]{images/pipeline_mac}
+\includegraphics[width=\textwidth]{images/pipeline_mac}
 \caption{Part a) shows a schedule for the body of the \lstinline{MAC for} loop. Part b) shows the schedule for three iterations of a pipelined version of the \lstinline{MAC for} loop.}
 \label{fig:pipeline_mac}
 \end{figure}
@@ -275,7 +281,7 @@ Any \lstinline{for} loop can be pipelined, so let us now consider the \lstinline
 
 \begin{figure}
 \centering
-\includegraphics[width=6in]{images/pipeline_tdl}
+\includegraphics[width=\textwidth]{images/pipeline_tdl}
 \caption{Part a) shows a schedule for two iterations of the body of the \lstinline{TDL for} loop. Part b) shows the schedule for three iterations of a pipelined version of the \lstinline{TDL for} loop with II=1.}
 \label{fig:pipeline_tdl}
 \end{figure}
@@ -362,7 +368,7 @@ Equation \ref{eq:complex_fir} shows the multiplication of the input complex numb
 
 \begin{figure}
 \centering
-\includegraphics[width=6in]{images/complex_fir}
+\includegraphics[width=\textwidth]{images/complex_fir}
 \caption{A complex FIR filter built from four real FIR filters. The input I and Q samples are feed into four different real FIR filters. The FIR filters hold the in-phase (FIR I) and quadrature (FIR Q) complex coefficients. }
 \label{fig:complex_fir}
 \end{figure}
@@ -372,7 +378,9 @@ A complex FIR filter takes as input a complex number $(I_{in},Q_{in})$ and outpu
 We used a hierarchical structure to define this complex FIR filter. \VHLS implements hierarchy using functions. Taking the previous real FIR function \lstinline{void fir (data_t *y, data_t x)} we can create another function that encapsulates four versions of this \lstinline{fir} function to create the complex FIR filter. This code is shown in Figure \ref{fig:complex_fir_code}.
 
 \begin{figure}
+\begin{scriptsize}
 \lstinputlisting{examples/complex_fir.cpp}
+\end{scriptsize}
 \caption{The \VHLS code to hierarchically implement a complex FIR filter using four real FIR filters.}
 \label{fig:complex_fir_code}
 \end{figure}
@@ -382,7 +390,9 @@ The code defines four functions \lstinline{firI1}, \lstinline{firQ1}, \lstinline
 The function calls act as interfaces. The \VHLS tool does not optimize across function boundaries. That is, each \lstinline{fir} function synthesized independently, and treated more or less as a black box in the \lstinline{complexFIR} function. You can use the \lstinline{inline} directive if you want the \VHLS tool to co-optimize a particular function within its parent function. This will add the code from that function into the parent function and eliminate the hierarchical structure. While this can increase the potential for benefits in performance and area, it also creates a large amount of code that the tool must synthesize. That may take a long time, even fail to synthesize, or may result in a non-optimal design. Therefore, use the \lstinline{inline} directive carefully. Also note that the \VHLS tool may choose to inline functions on its own. These are typically functions with a small amount of code.
 
 \begin{figure}
+\begin{footnotesize}
 \lstinputlisting{examples/inline.c}
+\end{footnotesize}
 \caption{ A simple and trivial example to demonstrate the \lstinline{inline} directive. The \lstinline{top_function} has four function calls to the function \lstinline{mul}. If we placed an \lstinline{inline} directive on the \lstinline{mul} function, the result is similar to what you see in the function \lstinline{inlined_top_function}. }
 \label{fig:inline}
 \end{figure}

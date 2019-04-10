@@ -74,7 +74,7 @@ The butterfly structure is a more compact representation that is useful to repre
 
 \begin{figure}
 \centering
-\includegraphics[width= 0.8 \textwidth]{images/2pointFFT}
+\includegraphics[width=\textwidth]{images/2pointFFT}
 \caption{Part a) is a data flow graph for a 2 point \gls{dft}/\gls{fft}. Part b) shows the same computation, but viewed as a butterfly structure. This is a common representation for the computation of an \gls{fft} in the digital signal processing domain.}
 \label{fig:2pointFFT}
 \end{figure}
@@ -178,7 +178,7 @@ The twiddle factors in the last two equations are modified from $e^{\frac{-j 2 \
 
 \begin{figure}
 \centering
-\includegraphics[width=  .5 \textwidth]{images/4ptFFT}
+\includegraphics[width=\textwidth]{images/4ptFFT}
 \caption{A four point \gls{fft} divided into two stages. Stage 1 has uses two 2 point \gls{fft}s -- one 2 point \gls{fft} for the even input values and the other 2 point \gls{fft} for the odd input values. Stage 2 performs the remaining operations to complete the \gls{fft} computation as detailed in Equation \ref{eq:reduced4point}. }
 \label{fig:4ptFFT}
 \end{figure}
@@ -262,7 +262,7 @@ We can use Equations \ref{eq:fft-split-4} and \ref{eq:fft-split-7-upper} to crea
 
 \begin{figure}
 \centering
-\includegraphics[width=  .8 \textwidth]{images/NptFFT}
+\includegraphics[width=\textwidth]{images/NptFFT}
 \caption{Building an $N$ point \gls{fft} from two $N/2$ point \gls{fft}s. The upper $N/2$ point \gls{fft} is performed on the even inputs; the lower $N/2$ \gls{fft} uses the odd inputs. }
 \label{fig:NptFFT}
 \end{figure}
@@ -275,7 +275,7 @@ Figure \ref{fig:8ptFFT} shows an 8 point \gls{fft} and highlights this recursive
 
 \begin{figure}
 \centering
-\includegraphics[width=  \textwidth]{images/8ptFFT}
+\includegraphics[width=\textwidth]{images/8ptFFT}
 \caption{An 8 point \gls{fft} built recursively. There are two 4 point \gls{fft}s, which each use two 2 point \gls{fft}s. The inputs must be reordered to even and odd elements twice. This results in reordering based upon the bit reversal of the indices.}
 \label{fig:8ptFFT}
 \end{figure}
@@ -341,7 +341,9 @@ This function prototype forces an in-place implementation. That is, the output d
 We start with code for an \gls{fft} that would be typical for a software implementation. Figure \ref{fig:fft_sw} shows a nested three \lstinline|for| loop structure. The outer \lstinline|for| loop, labeled \lstinline|stage_loop| implements one stage of the \gls{fft} during each iteration. There are $log_2(N)$ stages where $N$ is the number of input samples. The stages are clearly labeled in Figure \ref{fig:8ptFFT}; this 8 point \gls{fft} has $log_2(8) = 3$ stages. You can see that each stage performs the same amount of computation, or the same number of butterfly operations. In the 8 point \gls{fft}, each stage has four butterfly operations. 
 
 \begin{figure}
+\begin{tiny}
 \lstinputlisting[format=none,firstline=34]{examples/fft_sw.cpp}
+\end{tiny}
 \caption{ A common implementation for the \gls{fft} using three nested \lstinline|for| loops.  While this may work well running as software on a processor, it is far from optimal for a hardware implementation.}
 \label{fig:fft_sw}
 \end{figure}
@@ -376,7 +378,9 @@ We have not talked about the bit reverse function, which swaps the input data va
 Figure \ref{fig:fft_bit_reverse} shows one possible implementation of the bit reverse function. It divides the code into two functions. The first is the bit reversal function (\lstinline|bit_reverse|), which reorders data in the given arrays so that each data is in located at a different index in the array. This function calls another function, \lstinline|reverse_bits|, which takes an input integer and returns the bit reversed value of that input.
 
 \begin{figure}
+\begin{scriptsize}
 \lstinputlisting[lastline=33]{examples/fft_sw.cpp}
+\end{scriptsize}
 \caption{ The first stage in our \gls{fft} implementation reorders the input data. This is done by swapping the value at index $i$ in the input array with the value at the bit reversed index corresponding to $i$. The function \lstinline|reverse_bits| gives the bit reversed value corresponding to the \lstinline|input| argument. And the function \lstinline|bit_reverse| swaps the values in the input array. }
 \label{fig:fft_bit_reverse}
 \end{figure}
@@ -403,7 +407,9 @@ In each iteration of the \lstinline{for} loop, we find the index reversed value 
 Dividing the \gls{fft} algorithm into stages enables \VHLS to generate an implementation where different stages of the algorithm are operating on different data sets. This optimization, called \gls{taskpipelining} is enabled using the \lstinline{dataflow} directive. This is a common hardware optimization, and thus is relevant across a range of applications.
 
 \begin{figure}
+\begin{tiny}
 \lstinputlisting[format=none,firstline=35]{examples/fft_stages.cpp}
+\end{tiny}
 \caption{Code implementing an 8 point \gls{fft} divided into stages, each of which is implemented by a separate function. The \lstinline{bit_reverse} function is the first stage. Each following stage performs implements butterfly operations. }
 \label{fig:fft_stages_code}
 \end{figure}
@@ -414,9 +420,9 @@ Refactoring the \gls{fft} code allows us to perform \gls{taskpipelining}. Figure
 
 \begin{figure}
 \centering
-%\includegraphics[width=  \textwidth]{images/fftstages}
-{\scriptsize \includesvg{fftstages}}
-\includesvg{fft_dataflow_behavior}
+%\includegraphics[width=\textwidth]{images/fftstages}
+{\tiny \includesvg{fftstages}}
+{\tiny \includesvg{fft_dataflow_behavior}}
 \caption{ Dividing the \gls{fft} into different stages allows for task pipelining across each of these stages. The figure shows an example with three \gls{fft} stages (i.e., an 8 point \gls{fft}). The figure shows four 8 point \gls{fft} executing at the same time. }
 \label{fig:fftstages}
 \end{figure}
@@ -424,7 +430,9 @@ Refactoring the \gls{fft} code allows us to perform \gls{taskpipelining}. Figure
 The \lstinline|dataflow| directive can construct separate pipeline stages (often called \glspl{process}) from both functions and loops. The code in Figure \ref{fig:fft_stages_code} uses functions only, but we could achieve a similar result with four loops instead of four functions.  In fact, this result could be achieved by unrolling the outer \lstinline|stage_loop| in the original code either explicitly or using \lstinline|#pragma HLS unroll|.  Such a code structure has several advantages.  Firstly, it is closer to the structure of the original algorithmic code, reducing the amount of code changes which need to be made.   Secondly, the code is less verbose, making it somewhat easier to write.  Thirdly, the code is again parameterized, supporting different values of size with the same code.  Code with a loop is shown in Figure \ref{fig:fft_stages_loop_code}.
 
 \begin{figure}
+\begin{scriptsize}
 \lstinputlisting[format=none,firstline=64]{examples/fft_stages_loop.cpp}
+\end{scriptsize}
 \caption{Code implementing an arbitrary-sized FFT using a loop. After the loop is unrolled, each function call in the unrolled loop becomes a dataflow process. }
 \label{fig:fft_stages_loop_code}
 \end{figure}

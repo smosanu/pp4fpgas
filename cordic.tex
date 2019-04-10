@@ -32,7 +32,7 @@ In the following, we walk through the process of how a CORDIC performs the sine 
 
 \begin{figure}
 \centering
-\includegraphics[width=.5\textwidth]{images/cordic_overview}
+\includegraphics[width=\textwidth]{images/cordic_overview}
 \caption{ Using the CORDIC to calculate the functions $\sin \phi$ and $\cos \phi$. Here, the CORDIC starts at the x-axis with a corresponding $0^\circ$ angle. It then performs four iterative positive/negative rotations in increasingly smaller rotation angle with the ultimate goal of reaching the target angle $\phi$. Once we finish our rotations we are close to the target angle. We take the corresponding $x$ and $y$ values of the final vector which correspond to  $\cos \phi$ and $\sin \phi$ (respectively) assuming the length of the vector is $1$. The key to the CORDIC is doing all of this in a computationally efficient manner. }
 \label{fig:cordic_overview}
 \end{figure}
@@ -238,6 +238,7 @@ Describe the effect if the $i$th iteration on the precision of the results? That
 \begin{table}[htbp]
 \caption{The rotating angle, scaling factor, and CORDIC gain for the first seven iterations of a CORDIC. Note that the angle decreases by approximately half each time. The scaling factor indicates how much the length the the vector increases during that rotation. The CORDIC gain is the overall increase in the length of the vector which is the product of all of the scaling factors for the current and previous rotations.}
 \begin{center}
+\begin{scriptsize}
 \begin{tabular}{|c|c|c|c|c|c|}
 \hline
 i & $2^{-i}$ 	& Rotating Angle  	& Scaling Factor 	& CORDIC Gain 	\\ \hline \hline
@@ -249,6 +250,7 @@ i & $2^{-i}$ 	& Rotating Angle  	& Scaling Factor 	& CORDIC Gain 	\\ \hline \hli
 5 & 0.03125 	& $1.790^{\circ}$	& 1.00049			& 1.64649		\\ \hline
 6 & 0.015625 	& $0.895^{\circ}$	& 1.00012			& 1.64669		\\ \hline
 \end{tabular}
+\end{scriptsize}
 \end{center}
 \label{table:cordic}
 \end{table}%
@@ -259,7 +261,7 @@ Now we describe more precisely our running example of using a CORDIC to calculat
 
 \begin{figure}
 \centering
-\includegraphics[width=.5\textwidth]{images/sin_cos_cordic}
+\includegraphics[width=\textwidth]{images/sin_cos_cordic}
 \caption{Calculating $\cos 60^{\circ}$ and $\sin 60^{\circ}$ using the CORDIC algorithm. Five rotations are performed using incrementally larger $i$ values (0,1,2,3,4). The result is a vector with an angle of $61.078^{\circ}$. The corresponding $x$ and $y$ values of that vector give the approximate desired cosine and sine values. }
 \label{fig:cordic_rotations}
 \end{figure}
@@ -278,7 +280,9 @@ Is it possible to get worse accuracy by performing more rotations? Provide an ex
 \end{exercise}
 
 \begin{figure}
+\begin{scriptsize}
 \lstinputlisting{examples/cordic.cpp}
+\end{scriptsize}
 \caption{CORDIC code implementing the sine and cosine of a given angle.}
 \label{fig:cordic_code}
 \end{figure}
@@ -295,7 +299,7 @@ A two-dimensional vector $v$ can be represented using a Cartesian coordinate sys
 
 \begin{figure}
 \centering
-\includegraphics[width=.55\textwidth]{images/rotation}
+\includegraphics[width=\textwidth]{images/rotation}
 \caption{ The figure shows a two-dimensional plane and a vector represented in both the Cartesian form $(x,y)$ and the polar form $(r, \theta)$ and provides the relationship between those two coordinate systems.  }
 \label{fig:cordic_polar}
 \end{figure}
@@ -318,6 +322,7 @@ r =\sqrt{x^2 + y^2}
 \theta = \operatorname{atan2}(y, x)
 \end{equation}
 where atan2 is a common variation on the arctangent function defined as
+\begin{footnotesize}
 \begin{equation}
 \operatorname{atan2}(y, x) =
 \begin{cases}
@@ -329,6 +334,7 @@ where atan2 is a common variation on the arctangent function defined as
 \text{undefined} & \mbox{if } x = 0 \mbox{ and } y = 0
 \end{cases}
 \end{equation}
+\end{footnotesize}
 
 This provides a way to translate between the two coordinate systems. However, these operations are not easy to implement in hardware. For example, sine, cosine, square root, and arctan are not simple operations and they require significant amount of resources. But we can use the CORDIC to perform these operations using a series of simple iterative rotation operations. 
 
@@ -423,11 +429,14 @@ float p2 = 0xB4p-4; // Initialize p2 to "11.25"
 \end{lstlisting}
 
 Notice that in general, it is only necessary to write non-zero digits and any digits not shown can be assumed to be zero without changing the represented value of an unsigned number.  As a result, it is easy to represent the same value with more digits: simply add as many zero digits as necessary.  This process is often called \term{zero-extension}.  Note that each additional digit increases the amount of numbers that can be represented.  Adding an additional bit to a binary number doubles the amount of numbers that can be represented, while an additional hexadecimal digit increases the amount of numbers by a factor of 16.
+\begin{tiny}
+\setlength{\tabcolsep}{0.2em}
 \begin{tabularpad}{*{12}{c}|l}
-$2^7$ & $2^6$ & $2^5$ & $2^4$ & $2^3$ & $2^2$ & $2^1$ & $2^0$ & $2^{-1}$ & $2^{-2}$ & $2^{-3}$ & $2^{-4} $ & unsigned \\
+$2^7$&$2^6$&$2^5$&$2^4$&$2^3$&$2^2$&$2^1$&$2^0$&$2^{-1}$&$2^{-2}$&$2^{-3}$&$2^{-4}$&unsigned\\
 \hline 
-0&0&0&0&1&0&1&1&0&1&0&0&= 11.25 \\
+0&0&0&0&1&0&1&1&0&1&0&0&=11.25\\
 \end{tabularpad}
+\end{tiny}
 
 \begin{aside}
 Note that it is possible to have any number of bits in a binary number, not just 8, 16, or 32.   SystemC \cite{systemc}, for instance, defines several template classes for handling arbitrary precision integers and fixed-point numbers (including \lstinline|sc_int<>|, \lstinline|sc_uint<>|, \lstinline|sc_bigint<>|,  \lstinline|sc_ubigint<>|, \lstinline|sc_fixed<>|, and \lstinline|sc_ufixed<>|).  These classes can be commonly used in HLS tools, although they were originally defined for system modeling and not necessarily synthesis.  \VHLS, for instance, includes similar template classes (\lstinline|ap_int<>|, \lstinline|ap_uint<>|, \lstinline|ap_fixed<>|, and \lstinline|ap_ufixed<>|) that typically work better than the SystemC template classes, both in simulation and synthesis. \end{aside}
@@ -504,6 +513,8 @@ What is $-0$ in two's complement?  if $x$ is the largest negative number represe
 \subsection{Overflow, Underflow, and Rounding}
 
 \term{Overflow} occurs when a number is larger than the largest number that can be represented in a given number of bits.  Similarly, \term{underflow} occurs when a number is smaller than the smallest number that can be represented.  One common way of handling overflow or underflow is to simply drop the most significant bits of the original number, often called \term{wrapping}.
+\setlength{\tabcolsep}{0.2em}
+\begin{footnotesize}
 \begin{tabularpad}{*{10}{c}|l}
 $2^5$ & $2^4$ & $2^3$ & $2^2$ & $2^1$ & $2^0$ & $2^{-1}$ & $2^{-2}$ & $2^{-3}$ & $2^{-4} $ & \\
 \hline 
@@ -512,8 +523,11 @@ $2^5$ & $2^4$ & $2^3$ & $2^2$ & $2^1$ & $2^0$ & $2^{-1}$ & $2^{-2}$ & $2^{-3}$ &
 &&1&0&1&1&0&1&0&0&$=11.25$ \\
 &&&0&1&1&0&1&0&0&$=3.25$ \\
 \end{tabularpad}
+\end{footnotesize}
 
 Handling overflow and underflow by wrapping two's complement numbers can even cause a positive number to become negative, or a negative number to become positive.
+\setlength{\tabcolsep}{0.2em}
+\begin{footnotesize}
 \begin{tabularpad}{*{8}{c}|l}
 $-2^3$ & $2^2$ & $2^1$ & $2^0$ & $2^{-1}$ & $2^{-2}$ & $2^{-3}$ & $2^{-4} $ & two's complement \\
 \hline 
@@ -522,6 +536,7 @@ $-2^3$ & $2^2$ & $2^1$ & $2^0$ & $2^{-1}$ & $2^{-2}$ & $2^{-3}$ & $2^{-4} $ & tw
 \hline 
 \hfill&0&1&1&0&1&0&0&$=3.25$ \hfill
 \end{tabularpad}
+\end{footnotesize}
 
 Similarly, when a number cannot be represented precisely in a given number of fractional bits, it is necessary to apply \term{rounding}.  Again, there are several common ways to round numbers.  The simplest way is to just drop the extra fractional bits, which tends to result in numbers that are more negative.  This method of rounding is often called \term{rounding down} or \term{rounding to negative infinity}.  When rounding down to the nearest integer, this corresponds to the \lstinline|floor()| function, although it's possible to round to other bit positions as well.
 \tabspace\\\makebox{\begin{tabular}{rl}
@@ -723,7 +738,9 @@ In this section, we provide some brief thoughts and suggestions on the best way 
 One important decision when implementing the CORDIC function is to select the type used to represent angles and the results.  While the original code can operate with either floating-point types, e.g. \lstinline{float}, and fixed-point types, CORDIC is most commonly used with fixed-point types with the specific goal of eliminating multipliers.  When efficient means of multiplication are available, other methods for computing trigonometric functions are often preferred.   Looking at the original code in Figure \ref{fig:cordic_code}, it contains several multiply operators  related to the \lstinline{sigma} and \lstinline{factor} variables.  By restricting the code to only work with fixed-point types we can remove these multiplications, converting them into shifts and adds.  Code that does this is shown in Figure \ref{fig:cordic_fixed_code}.
 
 \begin{figure}
+\begin{tiny}
 \lstinputlisting{examples/cordic_fixed.cpp}
+\end{tiny}
 \caption{Fixed-point CORDIC code implementing the sine and cosine of a given angle.}\label{fig:cordic_fixed_code}
 \end{figure}
 

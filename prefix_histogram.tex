@@ -26,26 +26,26 @@ out_n = out_{n-1} + in_n
 
 The disadvantage of the recurrence equation is that we must compute $out_{n-1}$ before computing $out_n$, which fundamentally limits the parallelism and throughput that this computation can be performed.  In contrast, the original equations have obvious parallelism where each output can be computed independently at the expense of a significant amount of redundant computation.  C code implementing the recurrence equation is shown in Figure \ref{fig:prefixsumSW}. Ideally, we'd like to achieve $II=1$ for the loop in the code, but this can be challenging even for such simple code.  Implementing this code with \VHLS results in behavior like that shown in Figure \ref{fig:prefixsumSW}.
 \begin{figure}
-\begin{minipage}{.5\textwidth}
-\lstinputlisting{examples/prefixsumBO.cpp}
+\begin{minipage}{.45\textwidth}
+{\tiny \lstinputlisting{examples/prefixsumBO.cpp}}
 \end{minipage}
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.45\textwidth}
 \centering
-\includesvg{prefixsumBO_behavior}
+{\tiny \includesvg{prefixsumBO_behavior}}
 \end{minipage}
-\caption{ Code for implementing prefix sum, and its accompanying behavior. }
+\caption{Code for implementing prefix sum, and its accompanying behavior. }
 \label{fig:prefixsumSW}
 \end{figure}
 
 The way this code is written, each output is written into the output memory \lstinline|out[]| and then in the next iteration is read back out of the memory again.  Since the memory read is has a latency of one, data read from memory cannot be processed until the following clock cycle.  As a result, such a design can only achieve a loop II of 2.  In this case there is a relatively easy way to rewrite the code: we can simply perform the accumulation on a separate local variable, rather than reading the previous value back from the array.  Avoiding extra memory accesses in favor of register storage is often advantageous in processor code, but in HLS designs it is often more significant since other operations are rarely a performance bottleneck.  Code that does this is shown in Figure \ref{fig:prefixsum_optimized}.
 
 \begin{figure}
-\begin{minipage}{.5\textwidth}
-\lstinputlisting{examples/prefixsum_optimized.cpp}
+\begin{minipage}{.45\textwidth}
+{\tiny \lstinputlisting{examples/prefixsum_optimized.cpp}}
 \end{minipage}
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.45\textwidth}
 \centering
-\includesvg{prefixsum_optimized_behavior}
+{\tiny \includesvg{prefixsum_optimized_behavior}}
 \end{minipage}
 \caption{ Code for implementing an optimized prefix sum, and its accompanying behavior. }
 \label{fig:prefixsum_optimized}
@@ -54,12 +54,12 @@ The way this code is written, each output is written into the output memory \lst
 You might ask why the compiler is not able to optimize the memory loads and stores automatically in order to improve the II of the design.  It turns out that \VHLS is capable of optimizing loads and stores to array, but only for reads and writes within the scope of a single basic block.  You can see this if we unroll the loop, as shown in Figure \ref{fig:prefixsum_unrolled}.  Note that we also have to add appropriate \lstinline{array_partition} s in order to be able to read and write multiple values at the interfaces.   In this case, \VHLS is able to eliminate most of the read operations of the \lstinline{out[]} array within the body of the loop, but we still only achieve a loop II of 2.  In this case the first load in the body of the loop is still not able to be removed.  We can, however, rewrite the code manually to use a local variable rather than read from the \lstinline{out[]} array.
 
 \begin{figure}
-\begin{minipage}{.5\textwidth}
-\lstinputlisting{examples/prefixsum_unrolled.cpp}
+\begin{minipage}{.45\textwidth}
+{\tiny \lstinputlisting{examples/prefixsum_unrolled.cpp}}
 \end{minipage}
-\begin{minipage}{.5\textwidth}
+\begin{minipage}{.45\textwidth}
 \raggedleft
-\includesvg{prefixsum_unrolled_behavior}
+{\tiny \includesvg{prefixsum_unrolled_behavior}}
 \end{minipage}
 \caption{ Optimizing the prefixsum code using \lstinline{unroll}, \lstinline{pipeline}, and \lstinline{array_partition} directives. }
 \label{fig:prefixsum_unrolled}
@@ -82,7 +82,7 @@ Unroll the \lstinline{for} loop corresponding to the prefix sum code in Figure \
 
 \begin{figure}
 \centering
-\includegraphics[width=  .7\textwidth]{images/architectures_prefixsum}
+\includegraphics[width=\textwidth]{images/architectures_prefixsum}
 \caption{ Part a) displays an architecture corresponding to the code in Figure~\ref{fig:prefixsumSW}. The dependence on the \lstinline{out[]} array can prevent achieving a loop II of 1. Computing the recurrence with a local variable, as shown in the code in Figure~\ref{fig:prefixsum_optimized}, is able to reduce the latency in the recurrence and achieve a loop II of 1.}
 \label{fig:architecture_prefixsum}
 \end{figure}
@@ -103,7 +103,7 @@ A Histogram models the probability distribution of a discrete signal. Given a se
 
 \begin{figure}
 \centering
-\includegraphics[width=  .7\textwidth]{images/histogram_introd}
+\includegraphics[width=\textwidth]{images/histogram_introd}
 \caption{ An example of a histogram.  }
 \label{fig:histogram_introd}
 \end{figure}
@@ -111,7 +111,7 @@ A Histogram models the probability distribution of a discrete signal. Given a se
 Figure~\ref{fig:histogram_introd} provides a simple example of a histogram.  The data set consists of a sequence of binned values, in this case represented by an integer in $[0,4]$. The corresponding histogram, consisting of a count for each bin, is shown below along with a graphical representation of the histogram, where the height of each bar corresponding to the count of each separate value.  Figure~\ref{fig:histogramSW} shows baseline code for the \lstinline{histogram} function.
 
 \begin{figure}
-\lstinputlisting{examples/histogramSW.cpp}
+{\footnotesize \lstinputlisting{examples/histogramSW.cpp}}
 \caption{ Original code for calculating the histogram. The \lstinline{for} loop iterates across the input array and increments the corresponding element of the \lstinline{hist} array. }
 \label{fig:histogramSW}
 \end{figure}
@@ -121,7 +121,7 @@ Figure~\ref{fig:architecture_histogram} shows the hardware architecture for the 
 
 \begin{figure}
 \centering
-\includegraphics[width=  .5\textwidth]{images/architectures_histogram}
+\includegraphics[width=\textwidth]{images/architectures_histogram}
 \caption{ An architecture resulting from the code in Figure \ref{fig:histogramSW}. The \lstinline{val} data from the \lstinline{in} array is used to index into the \lstinline{hist} array. This data is incremented and stored back into the same location.}
 \label{fig:architecture_histogram}
 \end{figure}
@@ -135,7 +135,7 @@ The modified code is shown in Figure \ref{fig:histogram_dependence}.  Here we've
 in \VHLS, this assertion is enabled during simulation to ensure that the simulation testvectors meet the required precondition.  The \lstinline|dependence| directive captures the effect of this precondition on the circuit, generated by the tool.  Namely, it indicates to \VHLS that reads and writes to the \lstinline|hist| array are dependent only in a particular way.  In this case, \lstinline|inter|-iteration dependencies consisting of a read operation after a write operation (RAW) have a distance of 2.  In this case a distance of $n$ would indicate that read operations in iteration $i+n$ only depend on write operations in iteration $i$.  In this case, we assert that \lstinline|in[i+1] != in[i]|, but it could be the case that \lstinline|in[i+2] == in[i]| so the correct distance is 2.
 
 \begin{figure}
-\lstinputlisting{examples/histogram_dependence.cpp}
+{\footnotesize \lstinputlisting{examples/histogram_dependence.cpp}}
 \caption{ An alternative function for computing a histogram.  By restricting the inputs and indicating this restriction to \VHLS via the \lstinline|dependence| directive, II=1 can be achieved without significantly altering the code. }
 \label{fig:histogram_dependence}
 \end{figure}
@@ -149,7 +149,7 @@ Unfortunately, the \lstinline{dependence} directive doesn't really help us if we
 \begin{figure}
 \centering
 \note{fixme!}
-\includegraphics[width=  .5\textwidth]{images/architectures_histogram}
+\includegraphics[width=\textwidth]{images/architectures_histogram}
 \caption{ An architecture resulting from the code in Figure \ref{fig:histogramSW} when the \lstinline|hist| array is completely partitioned.}
 \label{fig:histogram_partitioned}
 \end{figure}
@@ -159,7 +159,7 @@ Returning to the code in Figure~\ref{fig:histogramSW}, we see that there are rea
 In this code, we still need a \lstinline|dependence| directive, just as in Figure \ref{fig:histogram_dependence}, however the form is slightly different.  In this case the read and write accesses are to two different addresses in the same loop iteration.  Both of these addresses are dependent on the input data and so could point to any individual element of the \lstinline|hist| array.  Because of this, \VHLS assumes that both of these accesses could access the same location and as a result schedules the read and write operations to the array in alternating cycles, resulting in a loop II of 2.  However, looking at the code we can readily see that \lstinline|hist[old]| and \lstinline|hist[val]| can never access the same location because they are in the \lstinline|else| branch of the conditional \lstinline|if(old == val)|.  Within one iteration (an \lstinline|intra|-dependence) a read operation after a write operation (\lstinline|RAW|) can never occur and hence is a \lstinline|false| dependence.  In this case we are not using the \lstinline|dependence| directive to inform the tool about a precondition of the function, but instead about a property of the code itself. 
 
 \begin{figure}
-\lstinputlisting{examples/histogram_opt1.cpp}
+{\footnotesize \lstinputlisting{examples/histogram_opt1.cpp}}
 \caption{ Removing the read after write dependency from the \lstinline{for} loop. This requires an \lstinline{if/else} structure that may seem like it is adding unnecessary complexity to the design. However, it allows for more effective pipelining despite the fact that the datapath is more complicated. }
 \label{fig:histogramOpt1}
 \end{figure}
@@ -176,7 +176,7 @@ A pictorial description of the restructured code from Figure \ref{fig:histogramO
 
 \begin{figure}
 \centering
-\includegraphics[width=  .6\textwidth]{images/architectures_histogram_restructured}
+\includegraphics[width=\textwidth]{images/architectures_histogram_restructured}
 \caption{ A depiction of the datapath corresponding to the code in Figure \ref{fig:histogramOpt1}. There are two separate portions corresponding to the \lstinline{if} and \lstinline{else} clauses. The figure shows the important portions of the computation, and leaves out some minor details. }
 \label{fig:architecture_histogram_restructured}
 \end{figure}
@@ -189,7 +189,7 @@ All is not lost, however, as there is a way we can expose more parallelism by de
 
 \begin{figure}
 \centering
-\includegraphics[width=  .9\textwidth]{images/architectures_histogram_parallel}
+\includegraphics[width=\textwidth]{images/architectures_histogram_parallel}
 \caption{The histogram computation implemented using a map-reduce pattern.  The processing element (PE) in Part a) is the same architecture as shown in Figure \ref{fig:architecture_histogram_restructured}. The \lstinline|in| array is partitioned and each partition is processed by a separate \gls{pe}. The merge block combines the individual histograms to create the final histogram.  }
 \label{fig:architecture_histogram_parallel}
 \end{figure}
@@ -199,7 +199,7 @@ The code for implementing this architecture is shown in Figure \ref{fig:histogra
 The new \lstinline{histogram} function takes as an input two partitions of the input data, stored in the \lstinline{inputA} and \lstinline{inputB} arrays.  It computes the histogram of each partition using the \lstinline {histogram_map} function, which are then stored in the \lstinline{hist1} and \lstinline{hist2} arrays. These are feed into the \lstinline{histogram_reduce} function which combines them and stores the result in the \lstinline{hist} array, which is the final output of the top level function \lstinline{histogram}. 
 
 \begin{figure}
-\lstinputlisting{examples/histogram_parallel.cpp}
+{\tiny \lstinputlisting{examples/histogram_parallel.cpp}}
 \caption{ Another implementation of histogram that uses task level parallelism and pipelining. The histogram operation is split into two sub tasks, which are executed in the two \lstinline{histogram_map} functions. These results are combined in the final histogram result using the \lstinline{histogram_reduce} function. The \lstinline{histogram} function is the top level function that connects these three functions together. }
 \label{fig:histogram_parallel}
 \end{figure}

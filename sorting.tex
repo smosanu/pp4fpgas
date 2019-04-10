@@ -130,7 +130,7 @@ In the following, we attempt to demonstrate several concepts. First, writing eff
 In order to significantly increase the performance of insertion sort, we'd like to get to the point where we can insert a new element every clock cycle.  When inserting the last element into the sorted list, this might require shifting all of the elements in the array.  For the code in Figure \ref{fig:insertion_sort.cpp}, this means that the inner while loop could actually execute over all of the elements in the array.  Intuitively, we realize that inserting a new element into the sorted list every clock cycle requires enough hardware operators to perform a comparison on every element of the array in a single clock cycle.  To enable pipelining of the outer loop, we can convert the inner \lstinline{L2} loop with variable loop bounds into a fixed-bound loop, enabling it to be unrolled and integrated into the \lstinline{L1} loop pipeline.  Code that does this is shown in Figure \ref{fig:insertion_sort_parallel.cpp}.
 
 \begin{figure}
-\lstinputlisting{examples/insertion_sort_parallel.cpp}
+{\footnotesize \lstinputlisting{examples/insertion_sort_parallel.cpp}}
 \caption{Refactored insertion sort for Option 3 in Table \ref{table:case-studies}.}
 \label{fig:insertion_sort_parallel.cpp}
 \end{figure}
@@ -149,7 +149,7 @@ Systolic arrays have been well researched and many parallel algorithms are publi
   
 \begin{figure}
 \centering
-\includegraphics[width= \textwidth]{images/insertion_cell}
+\includegraphics[width=\textwidth]{images/insertion_cell}
 \caption{ The architecture of one insertion cell. Each cell holds exactly one value in the register \lstinline{local}. On each execution it receives an input value \lstinline{in}, compares that to its \lstinline{local} value, and writes the smaller of the two to \lstinline{output}. Sorting \lstinline{N} values requires \lstinline{N} cells. }
 \label{fig:insertion_cell}
 \end{figure}
@@ -157,7 +157,7 @@ Systolic arrays have been well researched and many parallel algorithms are publi
 Figure~\ref{fig:insertion_cell} shows a \gls{systolic_array} implementing insertion sort. Each cell is identical and compares its input (\lstinline{in}) with the value in current register \lstinline{local}. The smaller value is passed to the output \lstinline{out}, while the larger value is stored back in \lstinline{local}. In other words, \lstinline{out = min(in,local)}.  The output of cell $i$ is passed as input to the next cell $i+1$ in the linear array. As a new input arrives it will be compared against elements stored in the array until it finds it's correct place.  If a new input is larger than all of the  values in the array, then the sorted values will shift one cell to the right.  If a new input is smaller than all of the values in the array, then it will propagate through the array, and eventually become stored in the furthest right cell. After all the data has moved through the array, the smallest data element will be sorted in cell $N-1$ and can be read from the output. 
 
 \begin{figure}
-\lstinputlisting[firstline=3, lastline=15]{examples/insertion_cell_sort.cpp}
+{\footnotesize \lstinputlisting[firstline=3, lastline=15]{examples/insertion_cell_sort.cpp}}
 \caption{  The \VHLS C code corresponding to one insertion cell \lstinline{cell0}. The other cells have the exact same code except with a different function name (\lstinline{cell1}, \lstinline{cell2}, etc.). The code performs the same functionality as shown in the architectural diagram in Figure \ref{fig:insertion_cell}. It uses the \lstinline{hls:stream} interface for the input and output variables. \lstinline{hls::stream} provides a convenient method to create FIFOs that work both for synthesis and simulation. }
 \label{fig:insertion_cell_sort.cpp}
 \end{figure}
@@ -175,7 +175,7 @@ The code for one insertion cell is shown in Figure \ref{fig:insertion_cell_sort.
 Linking the insertion cells together is straightforward. The function \lstinline{insertion_cell_sort} in Figure \ref{fig:partial_insertion_cell_sort.cpp} shows the code for sorting eight elements. Expanding this to a larger number of elements simply requires replicating more \lstinline{cell} functions, additional \lstinline{hls::stream} variables, instantiating these functions, and connecting their input and output function arguments in the appropriate manner.
 
 \begin{figure}
-\lstinputlisting{examples/partial_insertion_cell_sort.cpp}
+{\footnotesize \lstinputlisting{examples/partial_insertion_cell_sort.cpp}}
 \caption{  Insertion cell sorting for eight elements. The function takes an input \lstinline{hls::stream} and outputs the elements in sorted order one at a time through the variable \lstinline{out}. The order starts with the smallest element first, and then continues on to increasingly larger elements. }
 \label{fig:partial_insertion_cell_sort.cpp}
 \end{figure}
@@ -205,7 +205,7 @@ How many cycles are required to sort an entire array? We define the sorting to b
 Figure \ref{fig:insertion_cell_sort_test.cpp} shows the code for the testbench. The testbench generates random data to be sorted in \lstinline{input[]}. This array is sorted by calling the \lstinline{insertion_cell_sort()} function multiple times, with the result appearing in \lstinline{cell_output[]}. Next, the same data is sorted in place using the \lstinline{insertion_sort} function from Figure \ref{fig:insertion_sort.cpp}. Finally, the testbench compares the results of these two sort implementations. The testbench passes if the sorted order from both implementations is the same.
 
 \begin{figure}
-\footnotesize\lstinputlisting[format=none]{examples/insertion_cell_sort-top.cpp}
+{\tiny \lstinputlisting[format=none]{examples/insertion_cell_sort-top.cpp}}
 %\end{figure}
 %\begin{figure}
 %\lstinputlisting[format=none,firstline=70]{examples/insertion_cell_sort-top.cpp}
@@ -244,6 +244,7 @@ Since we focus on sorting arrays of data, it turns out that the `divide' operati
 \begin{figure}
 \centering
 \setlength{\fboxsep}{0pt}
+\begin{scriptsize}
 \begin{tabular} {l l l } 
 in1[] = \{\underline{3}, 4, 6, 7\} & in2[] = \{\underline{1}, 2, 5, 8\} & out[] = \{ \} \\
 in1[] = \{\underline{3}, 4, 6, 7\} & in2[] = \{\colorbox{black}{1}, \underline{2}, 5, 8\}  & out[] = \{1\} \\
@@ -255,6 +256,7 @@ in1[] = \{\colorbox{black}{3}, \colorbox{black}{4}, \colorbox{black}{6}, \underl
 in1[] = \{\colorbox{black}{3}, \colorbox{black}{4}, \colorbox{black}{6}, \colorbox{black}{7}\}  & in2[] = \{\colorbox{black}{1}, \colorbox{black}{2}, \colorbox{black}{5}, \underline{8}\}  &out[] = \{1, 2, 3, 4, 5, 6, 7\} \\
 in1[] = \{\colorbox{black}{3}, \colorbox{black}{4}, \colorbox{black}{6}, \colorbox{black}{7}\}  & in2[] = \{\colorbox{black}{1}, \colorbox{black}{2}, \colorbox{black}{5}, \colorbox{black}{8}\} &out[] = \{1, 2, 3, 4, 5, 6, 7, 8\} \\
 \end{tabular}
+\end{scriptsize}
 \caption{The process of merging two sorted arrays.  The initial state is shown at the top.  In each step of the algorithm, the underlined elements are considered and one is placed into sorted order in the output array.}
 \label{fig:merge_behavior}
 \end{figure}
@@ -272,7 +274,7 @@ Although the merge sort algorithm is a common textbook example of recursive func
 Figure \ref{fig:merge_sort.cpp} shows basic code implementing a non-recursive merge sort.  This code sorts an array by performing roughly $N \log N$ comparisons, but requires a temporary array to store the partially sorted data. The code starts by considering each element of the array as a length one sorted subarray.  Each iteration of the outer loop merges pairs of sorted subarrays into larger sorted subarrays.  After the first iteration we have sorted subarrays with maximum size 2, after the second iteration the sorted subarrays have maximum size 4, then 8 and so on.  Note that if the size of the input array is not a power of two, then it is possible that we might end up with some subarrays which are smaller than the maximum size.
 
 \begin{figure}
-\lstinputlisting{examples/merge_sort.cpp}
+{\tiny \lstinputlisting{examples/merge_sort.cpp}}
 \caption{  A non-recursive implementation of merge sort. The \lstinline{merge_sort()} function iteratively merges subarrays until the entire array has been sorted. }
 \label{fig:merge_sort.cpp}
 \end{figure}
@@ -318,7 +320,7 @@ Many times the best designs are only possible by performing code restructuring. 
 Looking first at the inner loop of the \lstinline{merge()} function, you might have found that it was difficult to achieve a loop II of 1.  One challenge is that there are actually four reads of \lstinline{in[]}, but only at two different addresses.   The HLS tool must recognize that these reads are redundant, since \gls{bram} memories can only support two accesses each clock.  However because these reads are in different basic blocks, it is more difficult for a compiler to eliminate the redundant loads.  By eliminating the redundant reads, the compiler needs to do less optimization to achieve a loop II of 1.  The restructured code is shown in Figure \ref{fig:merge_sort_restructured.cpp}.  In addition, there is a recurrence through the \lstinline{f1} and \lstinline{f2} variables.  These variables are incremented in one of the branches of the \lstinline{if} conditional, which must be used in the next iteration to determine which locations in \lstinline{in[]} to compare and subsequently which branch of the conditional to take.  Because the floating point comparison is relatively complex, this recurrence can also limit the achievable II and clock period.
 
 \begin{figure}
-\lstinputlisting[format=none, lastline=23]{examples/merge_sort_restructured.cpp}
+{\tiny \lstinputlisting[format=none, lastline=23]{examples/merge_sort_restructured.cpp}}
 \caption{Restructured code for the \lstinline{merge()} function, which can achieve a loop II of 1 in \VHLS.}
 \label{fig:merge_sort_restructured.cpp}
 \end{figure}
@@ -327,7 +329,7 @@ The behavior of this code is shown in Figure \ref{fig:merge_sort_restructured_be
 
 \begin{figure}
 \centering
-\includesvg{merge_sort_restructured_behavior}
+{\tiny \includesvg{merge_sort_restructured_behavior}}
 \caption{Behavior of the restructured code in Figure \ref{fig:merge_sort_restructured.cpp}.}
 \label{fig:merge_sort_restructured_behavior}
 \end{figure}
@@ -335,7 +337,7 @@ The behavior of this code is shown in Figure \ref{fig:merge_sort_restructured_be
 A common approach is to flatten loop nests like these into a single loop, reducing the number of times that the pipeline must flush when exiting a loop.  In fact, \VHLS will automatically flatten perfect loop nests.  In this case, however, since the code does not contain a perfect loop nest, we can resort to flattening the loops manually.  Code resulting from manually flattening the \lstinline{merge_arrays} loop with the loop inside the \lstinline{merge()} function is shown in Figure \ref{fig:merge_sort_loop_merged.cpp}.  Note that one advantage of this code is that the \lstinline{merge_arrays} loop also has a constant number of loop iterations, making understanding performance much easier.
 
 \begin{figure}
-\lstinputlisting[format=none]{examples/merge_sort_loop_merged.cpp}
+{\tiny \lstinputlisting[format=none]{examples/merge_sort_loop_merged.cpp}}
 \caption{Restructured code for Merge Sort which can achieve a loop II of 1 with fewer pipeline bubbles in \VHLS.}
 \label{fig:merge_sort_loop_merged.cpp}
 \end{figure}
@@ -350,14 +352,14 @@ With Merge Sort it turns out that we can make a dataflow pipeline out of each it
 
 \begin{figure}
 \centering
-\includesvg{restructured_mergesort_dataflow}
+{\tiny \includesvg{restructured_mergesort_dataflow}}
 \caption{Dataflow pipelined architecture for implementing 4 stages of Merge Sort.  This architecture can sort up to 16 elements.}
 \label{fig:restructured_mergesort_dataflow}
 \end{figure}
 
 \begin{figure}
-\footnotesize
-\lstinputlisting{examples/merge_sort_parallel.cpp}
+{\tiny 
+\lstinputlisting{examples/merge_sort_parallel.cpp}}
 \caption{Restructured code for Merge Sort which can be implemented as a dataflow pipeline by \VHLS.}
 \label{fig:merge_sort_parallel.cpp}
 \end{figure}

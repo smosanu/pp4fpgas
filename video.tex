@@ -40,7 +40,7 @@ Each line of video (scanned from left to right) is separated by a \term{Horizont
 
 \begin{figure}
 \centering
-\includesvg{video_syncs}
+{\tiny \includesvg{video_syncs}}
 \caption{Typical synchronization signals in a 1080P60 high definition video signal.}\label{fig:video_syncs}
 \end{figure}
 
@@ -52,7 +52,7 @@ The typical 1080P60 video frame shown in Figure \ref{fig:video_syncs} contains a
 \note{Insert something here about handling syncs.}
 
 \begin{figure}
-\lstinputlisting{examples/video_simple.c}
+{\scriptsize \lstinputlisting{examples/video_simple.c}}
 \caption{Code implementing a simple video filter.}\label{fig:videoSimple}
 \end{figure}
 
@@ -70,13 +70,16 @@ By default, \VHLS generates a simple memory interface for interface arrays.  Thi
 
 \begin{figure}
 \centering
-\framebox{\includesvg{video_BRAM_interface}}
+\framebox{{\tiny \includesvg{video_BRAM_interface}}}
+
+\begin{scriptsize}
 \begin{lstlisting}
 void video_filter(rgb_pixel pixel_in[MAX_HEIGHT][MAX_WIDTH],
 				rgb_pixel pixel_out[MAX_HEIGHT][MAX_WIDTH]) {
 #pragma HLS interface ap_memory port = pixel_out // The default
 #pragma HLS interface ap_memory port = pixel_in // The default
 \end{lstlisting}
+\end{scriptsize}
 \caption{Integration of a video design with BRAM interfaces.}\label{fig:video:BRAM_interface}
 \end{figure}
 
@@ -88,13 +91,15 @@ A better choice for most video systems is to store video frames in external memo
 
 \begin{figure}
 \centering
-\framebox{\includesvg{video_DDR_interface}}
+\framebox{{\tiny \includesvg{video_DDR_interface}}}
+\begin{scriptsize}
 \begin{lstlisting}
 void video_filter(pixel_t pixel_in[MAX_HEIGHT][MAX_WIDTH],
 				pixel_t pixel_out[MAX_HEIGHT][MAX_WIDTH]) {
 #pragma HLS interface m_axi port = pixel_out
 #pragma HLS interface m_axi port = pixel_in
 \end{lstlisting}
+\end{scriptsize}
 \caption{Integration of a video design with external memory interfaces.}\label{fig:video:DDR_interface}
 \end{figure}
 
@@ -102,13 +107,15 @@ Although most processor systems are built with caches and require them for high 
 
 \begin{figure}
 \centering
-\framebox{\includesvg{video_DDR_DMA_interface}}
+\framebox{{\tiny \includesvg{video_DDR_DMA_interface}}}
+\begin{scriptsize}
 \begin{lstlisting}
 void video_filter(pixel_t pixel_in[MAX_HEIGHT][MAX_WIDTH],
 				pixel_t pixel_out[MAX_HEIGHT][MAX_WIDTH]) {
 #pragma HLS interface s_axi port = pixel_out
 #pragma HLS interface s_axi port = pixel_in
 \end{lstlisting}
+\end{scriptsize}
 \caption{Integration of a video design with external memory interfaces through a DMA component.}\label{fig:video:DDR_DMA_interface}
 \end{figure}
 
@@ -116,6 +123,7 @@ An alternative external memory architecture is shown in Figure \ref{fig:video:DD
 
 \begin{figure}
 \centering
+\begin{scriptsize}
 \begin{lstlisting}
 void video_filter(pixel_t pixel_in[MAX_HEIGHT][MAX_WIDTH],
 									pixel_t pixel_out[MAX_HEIGHT][MAX_WIDTH]) {
@@ -126,6 +134,7 @@ void video_filter(pixel_t pixel_in[MAX_HEIGHT][MAX_WIDTH],
 void video_filter(hls::stream<pixel_t> &pixel_in,
 									hls::stream<pixel_t> &pixel_out) {
 \end{lstlisting}
+\end{scriptsize}
 
 %\framebox{\includesvg{video_buffers}}
 \caption{Coding styles for modelling streaming interfaces in HLS.}\label{fig:video:stream_interfaces}
@@ -135,13 +144,15 @@ One advantage of streaming interfaces is that they allow multiple accelerators t
 
 \begin{figure}
 \centering
-\framebox{\includesvg{video_streaming_interface}}
+\framebox{{\tiny \includesvg{video_streaming_interface}}}
+\begin{scriptsize}
 \begin{lstlisting}
 void video_filter(pixel_t pixel_in[MAX_HEIGHT][MAX_WIDTH],
 				pixel_t pixel_out[MAX_HEIGHT][MAX_WIDTH]) {
 #pragma HLS interface ap_hs port = pixel_out
 #pragma HLS interface ap_hs port = pixel_in
 \end{lstlisting}
+\end{scriptsize}
 \caption{Integration of a video design with streaming interfaces.}\label{fig:video:streaming_interface}
 \end{figure}
 
@@ -155,8 +166,8 @@ When actually processing video in a system it is common to factor out the system
 Video processing algorithms typically compute an output pixel or value from a nearby region of input pixels, often called a \term{window}.   Conceptually, the window scans across the input image, selecting a region of pixels that can be used to compute the corresponding output pixel.  For instance, Figure \ref{fig:video:2Dfilter} shows code that implements a 2-dimensional filter on a video frame.  This code reads a window of data from the input video frame (stored in an array) before computing each output pixel.  
 
 \begin{figure}
-\lstinputlisting[format=none, firstline=3]{examples/video_2dfilter.c}
-\caption{Code implementing a 2D filter without an explicit line buffer.}\label{fig:video:2Dfilter}
+{\tiny \lstinputlisting[format=none,firstline=3]{examples/video_2dfilter.c}}
+\caption{Code implementing a 2D filter without an explicit line buffer.} \label{fig:video:2Dfilter}
 \end{figure}
 
 \begin{exercise}
@@ -169,7 +180,7 @@ A key observation about adjacent windows is that they often overlap, implying a 
 Note that for an NxN image filter, only N-1 lines need to be stored in line buffers.  
 
 \begin{figure}
-\lstinputlisting[format=none,firstline=20]{examples/video_2dfilter_linebuffer.c}
+{\tiny \lstinputlisting[format=none,firstline=20]{examples/video_2dfilter_linebuffer.c}}
 \caption{Code implementing a 2D filter with an explicit line buffer.}\label{fig:video:2Dfilter_linebuffer}
 \end{figure}
 
@@ -177,7 +188,7 @@ The line buffer and window buffer memories implemented from the code in Figure \
 
 \begin{figure}
 \centering
-\includesvg{video_buffers}
+{\tiny \includesvg{video_buffers}}
 \caption{ Memories implemented by the code in Figure \ref{fig:video:2Dfilter_linebuffer}.  These memories store a portion of the input image shown in the diagram on the right at the end of a particular iteration of the loop.  The pixels outlined in black are stored in the line buffer and the pixels outlined in red are stored in the window buffer.}\label{fig:video:video_buffers}
 \label{fig:dft-visualization}
 \end{figure}
@@ -219,19 +230,19 @@ For the purposes of this book, most variables aren't time-sampled signals and th
 In most video processing algorithms, the spatial shift introduced in the code above is undesirable and needs to be eliminated.  Although there are many ways to write code that solves this problem, a common way is known as \term{extending the iteration domain}.  In this technique, the loop bounds are increased by a small amount so that the first input pixel is read on the first loop iteration, but the first output pixel is not written until later in the iteration space.  A modified version of the filter code is shown in Figure \ref{fig:video:2Dfilter_linebuffer_extended}.  The behavior of this code is shown in Figure \ref{fig:video:timelines}, relative to the original linebuffer code in Figure \ref{fig:video:2Dfilter_linebuffer}.  After implementation with HLS, we see that the data dependencies are satisfied in exactly the same way and that the implemented circuit is, in fact, implementable.
 
 \begin{figure}
-\lstinputlisting[format=none,firstline=21]{examples/video_2dfilter_linebuffer_extended.c}
+{\tiny \lstinputlisting[format=none,firstline=21]{examples/video_2dfilter_linebuffer_extended.c}}
 \caption{Code implementing a 2D filter with an explicit line buffer.  The iteration space is extended by 1 to allow the filter to be implemented without a spatial shift.}\label{fig:video:2Dfilter_linebuffer_extended}
 \end{figure}
 
 \begin{figure}
 \centering
-\includesvg{filter2d_results_withshifting}
+{\tiny \includesvg{filter2d_results_withshifting}}
 \caption{Results of different filter implementations. The reference output in image b is produced by the code in Figure \ref{fig:video:2Dfilter}.  The shifted output in image c is produced by the code in Figure \ref{fig:video:2Dfilter_linebuffer}.  The output in image d is produced by the code in Figure \ref{fig:video:2Dfilter_linebuffer_extended} and is identical to image b.}\label{fig:video:filter2D_results_withshifting}
 \end{figure}
 
 \begin{figure}
 \centering
-\includesvg{video_timelines}
+{\tiny \includesvg{video_timelines}}
 \caption{Timeline of execution of code implemented with line buffers.  The top timeline shows the behavior of the code in  Figure \ref{fig:video:2Dfilter_linebuffer}.  The bottom timeline shows the behavior of the code in  Figure \ref{fig:video:2Dfilter_linebuffer_extended}.  The pixel marked in red is output on the same cycle in both implementations.  In the first case it is interpreted to be the second pixel of the second line and in the second case, it is interpreted as the first pixel of the first line.}\label{fig:video:timelines}
 \end{figure}
 
@@ -247,14 +258,14 @@ Of course, more complicated and typically more computationally intensive schemes
 
 \begin{figure}
 \centering
-\includesvg{filter2d_results_boundary_conditions}
+{\tiny \includesvg{filter2d_results_boundary_conditions}}
 \caption{Examples of the effect of different kinds of boundary conditions.}\label{fig:video:boundary_conditions}
 \end{figure}
 
 One way of writing code to handle boundary conditions is shown in Figure \ref{fig:video:boundaryConditionExtendBad}.  This code computes an offset address into the window buffer for each pixel in the window buffer.  However, there is a significant disadvantage in this code since each read from the window buffer is at a variable address.  This variable read results in multiplexers before the filter is computed.  For an N-by-N tap filter, there will be approximately N*N multiplexers with N inputs each.  For simple filters, the cost of these multiplexers (and the logic required to compute the correct indexes) can dominate the cost of computing the filter.
 
 \begin{figure}
-\lstinputlisting[format=none,firstline=22]{examples/video_2dfilter_linebuffer_extended_constant.c}
+{\tiny \lstinputlisting[format=none,firstline=22]{examples/video_2dfilter_linebuffer_extended_constant.c}}
 \caption{Code implementing a 2D filter with an explicit line buffer and constant extension to handle the boundary condition.   Although correct, this code is relatively expensive to implement.}\label{fig:video:boundaryConditionExtendBad}
 \end{figure}
 
