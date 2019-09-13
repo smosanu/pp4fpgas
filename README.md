@@ -15,3 +15,5 @@ I wanted to read this book on my Kindle device, so I imported this project in Ov
 To further increase the text, I switched to a6paper and adjusted a bunch of figures to fit.
 
 Re-compiled and worked like a charm! Thank you very much to the authors!
+
+Link to Overleaf: https://www.overleaf.com/read/mykjhcpghnmf
