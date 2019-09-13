@@ -17,4 +17,5 @@ To further increase the text, I switched to a6paper and adjusted a bunch of figu
 Re-compiled and worked like a charm! Thank you very much to the authors!
 
 Link to Overleaf: https://www.overleaf.com/read/mykjhcpghnmf
+
 Link to pre-compiled pdf: https://github.com/smosanu/pp4fpgas/blob/master/pp4fpgas.pdf
